@@ -1,0 +1,7 @@
+{
+  "name": "TechCompareApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

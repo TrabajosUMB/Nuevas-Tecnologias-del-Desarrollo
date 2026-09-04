@@ -1,0 +1,21 @@
+name: contador_app
+description: Aplicación de contador Flutter - Sesión 2 del taller universitario.
+  Evolución de la Sesión 1 con reinicio de contador y cambio dinámico de color de fondo.
+publish_to: 'none'
+
+version: 2.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

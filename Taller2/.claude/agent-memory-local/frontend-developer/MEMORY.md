@@ -1,0 +1,1 @@
+- [Taller2 Flutter Workshop](project_taller2.md) — university workshop building Flutter apps for Android + Windows, sessions under Sesion{N}/ subfolders
