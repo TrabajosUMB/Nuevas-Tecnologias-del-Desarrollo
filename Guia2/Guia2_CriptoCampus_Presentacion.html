@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CriptoCampus (CCT) — Arquitectura de Criptomoneda</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500&family=Fira+Code:wght@400;500&display=swap');
+
+    :root {
+      --primary: #00D4FF;
+      --primary-glow: rgba(0,212,255,0.3);
+      --secondary: #7B2FBE;
+      --accent: #FFD700;
+      --success: #00E676;
+      --bg: #060B18;
+      --bg2: #0D1526;
+      --card: rgba(255,255,255,0.05);
+      --card-border: rgba(255,255,255,0.08);
+      --text: #E8F0FE;
+      --muted: rgba(232,240,254,0.55);
+      --grad: linear-gradient(135deg, #00D4FF, #7B2FBE);
+      --grad2: linear-gradient(135deg, #FFD700, #FF8C00);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-bar {
+      position: fixed; top:0; left:0; height:3px;
+      background: var(--grad);
+      transition: width .4s ease;
+      z-index: 9999;
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    /* ─── SLIDE DECK ─── */
+    .slide-deck {
+      position: relative;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+    }
+
+    @media (min-width: 769px) {
+      .slide-deck {
+        max-width: calc(100vh * 16 / 9);
+        max-height: calc(100vw * 9 / 16);
+        margin: auto;
+        position: absolute;
+        inset: 0;
+      }
+    }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      text-align: center;
+      padding: 48px 64px;
+      opacity: 0; visibility: hidden;
+      transition: opacity .45s ease;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .slide.active { opacity: 1; visibility: visible; }
+
+    .slide-content {
+      width:100%; max-width:100%; max-height:100%;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      gap: 18px;
+    }
+
+    /* ─── TYPOGRAPHY ─── */
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 6.5vw, 76px);
+      font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .slide-subtitle {
+      font-size: clamp(16px, 2.4vw, 28px);
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(24px, 3.8vw, 48px);
+      font-weight: 600;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    p { font-size: clamp(13px, 1.9vw, 20px); line-height: 1.65; color: var(--muted); }
+
+    .label {
+      font-size: clamp(10px, 1.3vw, 14px);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      text-align: left;
+      transition: border-color .3s;
+    }
+    .card:hover { border-color: rgba(0,212,255,0.35); }
+    .card-icon { font-size: 28px; margin-bottom: 8px; }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(13px, 1.7vw, 18px);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .card-body { font-size: clamp(11px, 1.35vw, 14px); color: var(--muted); }
+
+    /* ─── GRIDS ─── */
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; width:100%; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width:100%; align-items:start; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; width:100%; }
+
+    /* ─── LAYER BADGE ─── */
+    .layer-badge {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 20px;
+      text-align: left;
+      width: 100%;
+    }
+    .layer-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--grad);
+      display: flex; align-items:center; justify-content:center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 16px;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+    .layer-info { flex:1; }
+    .layer-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: clamp(13px, 1.6vw, 17px);
+      color: var(--text);
+    }
+    .layer-desc { font-size: clamp(10px, 1.2vw, 13px); color: var(--muted); margin-top: 2px; }
+    .layer-tech {
+      font-family: 'Fira Code', monospace;
+      font-size: clamp(9px, 1.1vw, 12px);
+      color: var(--primary);
+      background: rgba(0,212,255,0.1);
+      padding: 3px 10px; border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* ─── METRIC CARD ─── */
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px 14px;
+      text-align: center;
+    }
+    .metric-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(26px, 4vw, 48px);
+      font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .metric-label { font-size: clamp(10px, 1.3vw, 13px); color: var(--muted); margin-top: 4px; }
+
+    /* ─── TABLE ─── */
+    .cmp-table { width:100%; border-collapse: separate; border-spacing: 0; font-size: clamp(10px, 1.3vw, 14px); }
+    .cmp-table th {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600; padding: 12px 16px;
+      background: rgba(0,212,255,0.12);
+      text-align: center;
+    }
+    .cmp-table th:first-child { background: transparent; border-radius: 12px 0 0 0; }
+    .cmp-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--card-border);
+      text-align: center;
+      color: var(--muted);
+    }
+    .cmp-table td:first-child { text-align:left; font-weight:500; color: var(--text); }
+    .cmp-table tr:last-child td { border-bottom: none; }
+    .highlight-col { color: var(--accent) !important; }
+
+    /* ─── CODE BLOCK ─── */
+    .code-block {
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: 'Fira Code', monospace;
+      font-size: clamp(9px, 1.2vw, 13px);
+      text-align: left;
+      width: 100%;
+      color: var(--primary);
+      line-height: 1.7;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline { display:flex; gap:0; width:100%; }
+    .tl-step {
+      flex:1; text-align:center; position:relative;
+      padding: 0 8px;
+    }
+    .tl-step::after {
+      content:'';
+      position:absolute;
+      top: 20px; left: 60%;
+      width:80%; height: 2px;
+      background: var(--grad);
+    }
+    .tl-step:last-child::after { display:none; }
+    .tl-dot {
+      width: 40px; height: 40px; border-radius:50%;
+      background: var(--grad);
+      margin: 0 auto 10px;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:14px;
+      box-shadow: 0 0 18px var(--primary-glow);
+    }
+    .tl-title { font-family:'Space Grotesk',sans-serif; font-size: clamp(11px,1.4vw,14px); font-weight:600; color:var(--text); }
+    .tl-sub { font-size: clamp(9px,1.1vw,12px); color:var(--muted); margin-top:4px; }
+
+    /* ─── PILL TAG ─── */
+    .tag {
+      display: inline-block;
+      padding: 4px 14px; border-radius: 20px;
+      font-size: clamp(10px,1.2vw,13px);
+      font-weight: 500; margin: 3px;
+    }
+    .tag-blue { background: rgba(0,212,255,0.15); color: var(--primary); border: 1px solid rgba(0,212,255,0.3); }
+    .tag-purple { background: rgba(123,47,190,0.2); color: #C77DFF; border: 1px solid rgba(123,47,190,0.4); }
+    .tag-gold { background: rgba(255,215,0,0.12); color: var(--accent); border: 1px solid rgba(255,215,0,0.3); }
+    .tag-green { background: rgba(0,230,118,0.12); color: var(--success); border: 1px solid rgba(0,230,118,0.3); }
+
+    /* ─── ANIMATIONS ─── */
+    .animate-fade-up { animation: fadeUp .6s ease-out forwards; opacity:0; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+
+    .animate-stagger > * { opacity:0; animation: fadeUp .5s ease-out forwards; }
+    .animate-stagger > *:nth-child(1) { animation-delay:.08s; }
+    .animate-stagger > *:nth-child(2) { animation-delay:.18s; }
+    .animate-stagger > *:nth-child(3) { animation-delay:.28s; }
+    .animate-stagger > *:nth-child(4) { animation-delay:.38s; }
+    .animate-stagger > *:nth-child(5) { animation-delay:.48s; }
+    .animate-stagger > *:nth-child(6) { animation-delay:.58s; }
+    .animate-stagger > *:nth-child(7) { animation-delay:.68s; }
+
+    .slide.active .animate-fade-up { animation-play-state: running; }
+    .slide.active .animate-stagger > * { animation-play-state: running; }
+
+    /* ─── SLIDE BACKGROUNDS ─── */
+    .bg-grid {
+      background-image:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .bg-radial {
+      background: radial-gradient(ellipse at 50% 0%, rgba(123,47,190,0.25) 0%, transparent 65%), var(--bg);
+    }
+
+    .bg-accent {
+      background: radial-gradient(ellipse at 70% 50%, rgba(0,212,255,0.12) 0%, transparent 60%), var(--bg);
+    }
+
+    /* ─── NAVIGATION ─── */
+    .nav-controls {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 18px;
+      z-index: 9999;
+      background: rgba(13,21,38,0.8);
+      padding: 10px 24px; border-radius: 40px;
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+    }
+    .nav-btn {
+      background: rgba(0,212,255,0.12);
+      border: 1px solid rgba(0,212,255,0.25);
+      color: var(--primary);
+      width: 38px; height: 38px;
+      border-radius: 50%; cursor: pointer;
+      font-size: 17px; transition: all .2s;
+      display: flex; align-items:center; justify-content:center;
+    }
+    .nav-btn:hover { background: rgba(0,212,255,0.25); box-shadow: 0 0 14px var(--primary-glow); }
+    .slide-counter { color: var(--muted); font-size: 13px; min-width: 52px; text-align: center; }
+
+    /* ─── SLIDE-SPECIFIC OVERRIDES ─── */
+    .cover-logo {
+      font-family: 'Fira Code', monospace;
+      font-size: clamp(11px,1.5vw,16px);
+      color: var(--primary);
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.3);
+      padding: 6px 18px; border-radius: 20px;
+      letter-spacing: 2px;
+    }
+
+    .divider {
+      width: 60px; height: 3px;
+      background: var(--grad);
+      border-radius: 2px;
+      margin: 2px auto;
+    }
+
+    .use-case-row {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      width: 100%;
+      text-align: left;
+    }
+    .use-case-icon { font-size: 22px; flex-shrink:0; }
+    .use-case-title { font-family:'Space Grotesk',sans-serif; font-size: clamp(12px,1.5vw,16px); font-weight:600; color:var(--text); }
+    .use-case-desc { font-size: clamp(10px,1.2vw,13px); color:var(--muted); }
+
+    @media (max-width:768px) {
+      .slide { padding: 24px 20px; }
+      .grid-3,.grid-4 { grid-template-columns: 1fr 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="slide-deck">
+
+  <!-- ═══════════════════════════════════════ SLIDE 1 — PORTADA ═══ -->
+  <div class="slide bg-radial active">
+    <div class="slide-content animate-stagger">
+      <div class="cover-logo">🔗 CRIPTOCAMPUS (CCT)</div>
+      <h1 class="slide-title">Arquitectura de una<br/>Criptomoneda</h1>
+      <div class="divider"></div>
+      <p class="slide-subtitle">Diseño de software de CriptoCampus Token<br/>
+        una criptomoneda educativa para instituciones universitarias</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px;">
+        <span class="tag tag-blue">Blockchain</span>
+        <span class="tag tag-purple">Ethereum / EVM</span>
+        <span class="tag tag-gold">Solidity · ERC-20</span>
+        <span class="tag tag-green">IBFT 2.0</span>
+      </div>
+      <p style="font-size:clamp(10px,1.3vw,13px);color:var(--muted);margin-top:2px;">
+        Nuevas Tecnologías del Desarrollo de Software — Guía N.º 2 · 2026
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 2 — AGENDA ═══ -->
+  <div class="slide bg-grid">
+    <div class="slide-content">
+      <span class="label">Contenido</span>
+      <h2>Agenda de la Presentación</h2>
+      <div class="grid-2" style="margin-top:6px;">
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:10px;text-align:left;">
+          <div class="card"><div class="card-title">01 · El Problema</div><div class="card-body">Gestión de pagos y recompensas universitarias</div></div>
+          <div class="card"><div class="card-title">02 · ¿Qué es CCT?</div><div class="card-body">Solución propuesta y propuesta de valor</div></div>
+          <div class="card"><div class="card-title">03 · Arquitectura 7 Capas</div><div class="card-body">Stack tecnológico completo de la plataforma</div></div>
+          <div class="card"><div class="card-title">04 · Smart Contracts</div><div class="card-body">ERC-20 en Solidity sobre Hyperledger Besu</div></div>
+        </div>
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:10px;text-align:left;">
+          <div class="card"><div class="card-title">05 · Comparativa</div><div class="card-body">Bitcoin · Ethereum · CriptoCampus</div></div>
+          <div class="card"><div class="card-title">06 · Casos de Uso</div><div class="card-body">Matrículas, becas, certificados, investigación</div></div>
+          <div class="card"><div class="card-title">07 · Tokenomics</div><div class="card-body">Distribución y economía del token CCT</div></div>
+          <div class="card"><div class="card-title">08 · Conclusiones</div><div class="card-body">Impacto y hoja de ruta</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 3 — EL PROBLEMA ═══ -->
+  <div class="slide bg-accent">
+    <div class="slide-content">
+      <span class="label">El Problema</span>
+      <h2>Pagos universitarios: ineficientes y opacos</h2>
+      <div class="grid-3 animate-stagger" style="margin-top:4px;">
+        <div class="card">
+          <div class="card-icon">💸</div>
+          <div class="card-title">Altos Costos de Transacción</div>
+          <div class="card-body">Comisiones bancarias y pasarelas de pago reducen los presupuestos institucionales entre un 2% y un 4%.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📋</div>
+          <div class="card-title">Gestión Manual de Becas</div>
+          <div class="card-body">Los procesos de asignación y seguimiento de becas son lentos, propensos a errores y poco transparentes.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">Sin Trazabilidad</div>
+          <div class="card-body">Las transacciones no quedan en registros inmutables; la auditoría posterior requiere conciliación manual.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <div class="card-title">Barreras de Acceso</div>
+          <div class="card-body">Estudiantes sin cuenta bancaria no pueden acceder a servicios financieros universitarios.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⏳</div>
+          <div class="card-title">Tiempos de Espera</div>
+          <div class="card-body">Transferencias internacionales y pagos entre sedes tardan de 1 a 5 días hábiles en procesarse.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📄</div>
+          <div class="card-title">Certificados Falsificables</div>
+          <div class="card-body">Los certificados académicos en papel son vulnerables a la falsificación y difíciles de verificar.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 4 — SOLUCIÓN ═══ -->
+  <div class="slide bg-radial">
+    <div class="slide-content">
+      <span class="label">Nuestra Solución</span>
+      <h2>¿Qué es CriptoCampus (CCT)?</h2>
+      <div class="grid-2" style="margin-top:6px;align-items:center;">
+        <div class="animate-stagger" style="text-align:left;">
+          <p style="margin-bottom:14px;">
+            <strong style="color:var(--primary)">CriptoCampus Token (CCT)</strong> es una criptomoneda educativa basada en blockchain que permite gestionar pagos, recompensas académicas y certificados dentro del ecosistema universitario.
+          </p>
+          <p style="margin-bottom:14px;">
+            Opera sobre una red permisionada <strong style="color:var(--accent)">Hyperledger Besu</strong> con consenso <strong style="color:var(--accent)">IBFT 2.0</strong>, garantizando alta disponibilidad, trazabilidad total y eliminación de intermediarios.
+          </p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+            <span class="tag tag-blue">Red Permisionada</span>
+            <span class="tag tag-green">Finalizaci­ón Instantánea</span>
+            <span class="tag tag-purple">Smart Contracts ERC-20</span>
+            <span class="tag tag-gold">Cero Intermediarios</span>
+          </div>
+        </div>
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="metric-card">
+            <div class="metric-number">0%</div>
+            <div class="metric-label">Comisión de transacción interna</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-number">&lt; 2s</div>
+            <div class="metric-label">Finalización de transacción</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-number">100M</div>
+            <div class="metric-label">Tokens CCT en suministro total</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-number">7</div>
+            <div class="metric-label">Capas de arquitectura</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 5 — ARQUITECTURA OVERVIEW ═══ -->
+  <div class="slide bg-grid">
+    <div class="slide-content">
+      <span class="label">Arquitectura</span>
+      <h2>Stack de 7 Capas — Visión General</h2>
+      <div class="animate-stagger" style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:4px;">
+        <div class="layer-badge">
+          <div class="layer-num">7</div>
+          <div class="layer-info"><div class="layer-name">Gobernanza DAO</div><div class="layer-desc">Votación on-chain · Actualizaciones de protocolo · Multisig 3/5</div></div>
+          <span class="layer-tech">Snapshot + Gnosis Safe</span>
+        </div>
+        <div class="layer-badge">
+          <div class="layer-num">6</div>
+          <div class="layer-info"><div class="layer-name">Identidad & KYC</div><div class="layer-desc">DID universitario · Credenciales verificables W3C</div></div>
+          <span class="layer-tech">W3C DID / VC</span>
+        </div>
+        <div class="layer-badge">
+          <div class="layer-num">5</div>
+          <div class="layer-info"><div class="layer-name">Aplicación (dApp)</div><div class="layer-desc">Portal Web · App Móvil · Wallet estudiantil · Dashboard administrativo</div></div>
+          <span class="layer-tech">React + ethers.js</span>
+        </div>
+        <div class="layer-badge">
+          <div class="layer-num">4</div>
+          <div class="layer-info"><div class="layer-name">API & Middleware</div><div class="layer-desc">REST/GraphQL · Oracle de precios · Webhooks institucionales</div></div>
+          <span class="layer-tech">Node.js + Web3.js</span>
+        </div>
+        <div class="layer-badge">
+          <div class="layer-num">3</div>
+          <div class="layer-info"><div class="layer-name">Smart Contracts</div><div class="layer-desc">Token ERC-20 · Contrato de Becas · Certificados on-chain · Staking</div></div>
+          <span class="layer-tech">Solidity 0.8.x</span>
+        </div>
+        <div class="layer-badge">
+          <div class="layer-num">2</div>
+          <div class="layer-info"><div class="layer-name">Consenso IBFT 2.0</div><div class="layer-desc">4 nodos validadores · Finalización en 2 bloques · Sin bifurcaciones</div></div>
+          <span class="layer-tech">IBFT 2.0 / BFT</span>
+        </div>
+        <div class="layer-badge">
+          <div class="layer-num">1</div>
+          <div class="layer-info"><div class="layer-name">Red Blockchain P2P</div><div class="layer-desc">Hyperledger Besu · EVM Compatible · Red privada permisionada</div></div>
+          <span class="layer-tech">Hyperledger Besu</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 6 — CAPAS 1 Y 2 ═══ -->
+  <div class="slide bg-accent">
+    <div class="slide-content">
+      <span class="label">Capas 1 & 2</span>
+      <h2>Red Blockchain & Consenso IBFT 2.0</h2>
+      <div class="grid-2" style="margin-top:8px;">
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:12px;text-align:left;">
+          <p class="label" style="font-size:clamp(9px,1.1vw,12px);">Capa 1 — Red P2P</p>
+          <div class="card">
+            <div class="card-title">⛓ Hyperledger Besu</div>
+            <div class="card-body">Cliente Ethereum empresarial compatible con EVM, diseñado para redes permisionadas con nodos de validación controlados por la universidad.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔐 Red Permisionada</div>
+            <div class="card-body">Solo nodos autorizados (sedes universitarias) pueden participar. Usa listas de acceso on-chain con contrato de administración.</div>
+          </div>
+          <div class="code-block">
+            // genesis.json<br/>
+            "config": &#123;<br/>
+            &nbsp;"chainId": 1337,<br/>
+            &nbsp;"ibft2": &#123; "blockperiodseconds": 2 &#125;<br/>
+            &#125;
+          </div>
+        </div>
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:12px;text-align:left;">
+          <p class="label" style="font-size:clamp(9px,1.1vw,12px);">Capa 2 — Consenso</p>
+          <div class="card">
+            <div class="card-title">🗳 Istanbul BFT 2.0</div>
+            <div class="card-body">Algoritmo de tolerancia a fallos bizantinos. Requiere ≥ 2/3 de validadores honestos para finalizar bloques. Sin posibilidad de reorganizaciones.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">⚡ Bloques cada 2 segundos</div>
+            <div class="card-body">Transacciones finalizadas en &lt; 2 bloques (~4s). Sin minería: consumo energético casi nulo comparado con PoW de Bitcoin.</div>
+          </div>
+          <div class="card" style="background: rgba(0,230,118,0.07); border-color: rgba(0,230,118,0.2);">
+            <div class="card-title" style="color:var(--success)">✅ Ventaja frente a PoW/PoS público</div>
+            <div class="card-body">Finalidad determinista, rendimiento predecible de 1000+ TPS, y sin gas fees especulativas para usuarios universitarios.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 7 — SMART CONTRACTS ═══ -->
+  <div class="slide bg-radial">
+    <div class="slide-content">
+      <span class="label">Capa 3</span>
+      <h2>Smart Contracts en Solidity</h2>
+      <div class="grid-2" style="margin-top:6px;">
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:10px;text-align:left;">
+          <div class="card">
+            <div class="card-title">🪙 Token CCT (ERC-20)</div>
+            <div class="card-body">Implementa el estándar ERC-20: <code style="color:var(--primary);font-family:'Fira Code',monospace">transfer</code>, <code style="color:var(--primary);font-family:'Fira Code',monospace">approve</code>, <code style="color:var(--primary);font-family:'Fira Code',monospace">mint</code>, <code style="color:var(--primary);font-family:'Fira Code',monospace">burn</code>. Suministro fijo de 100M CCT.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🎓 Contrato de Becas</div>
+            <div class="card-body">Asigna CCT automáticamente según criterios académicos verificados. Los fondos se liberan por hitos (promedio semestral, asistencia).</div>
+          </div>
+          <div class="card">
+            <div class="card-title">📜 Certificados On-Chain</div>
+            <div class="card-body">Hash SHA-256 del certificado académico almacenado en contrato; verificación pública e inmutable sin intermediarios.</div>
+          </div>
+        </div>
+        <div class="animate-fade-up">
+          <div class="code-block" style="font-size:clamp(8px,1.05vw,12px);line-height:1.65;">
+            <span style="color:var(--muted)">// SPDX-License-Identifier: MIT</span><br/>
+            <span style="color:#C77DFF">pragma</span> solidity ^0.8.20;<br/>
+            <span style="color:#C77DFF">import</span> "@openzeppelin/ERC20.sol";<br/><br/>
+            <span style="color:#C77DFF">contract</span> <span style="color:var(--accent)">CriptoCampusToken</span> is ERC20 &#123;<br/>
+            &nbsp;address <span style="color:var(--primary)">public</span> universidad;<br/>
+            &nbsp;<span style="color:#C77DFF">constructor</span>() ERC20("CriptoCampus","CCT") &#123;<br/>
+            &nbsp;&nbsp;universidad = msg.sender;<br/>
+            &nbsp;&nbsp;<span style="color:var(--primary)">_mint</span>(msg.sender, 100_000_000e18);<br/>
+            &nbsp;&#125;<br/>
+            &nbsp;<span style="color:#C77DFF">function</span> <span style="color:var(--success)">recompensar</span>(address est,<br/>
+            &nbsp;&nbsp;uint256 monto) <span style="color:var(--primary)">external</span> &#123;<br/>
+            &nbsp;&nbsp;require(msg.sender == universidad);<br/>
+            &nbsp;&nbsp;<span style="color:var(--primary)">transfer</span>(est, monto);<br/>
+            &nbsp;&#125;<br/>
+            &#125;
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 8 — CAPAS 4 Y 5 ═══ -->
+  <div class="slide bg-grid">
+    <div class="slide-content">
+      <span class="label">Capas 4 & 5</span>
+      <h2>API, Middleware & Aplicación dApp</h2>
+      <div class="grid-2" style="margin-top:8px;">
+        <div class="animate-stagger" style="text-align:left;">
+          <p class="label" style="margin-bottom:10px;font-size:clamp(9px,1.1vw,12px);">Capa 4 — API Gateway</p>
+          <div class="card" style="margin-bottom:10px;">
+            <div class="card-title">🔌 REST + GraphQL</div>
+            <div class="card-body">Endpoints institucionales para matricular, consultar saldos, emitir CCT y generar reportes. Autenticación OAuth 2.0 con SSO universitario.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">⚙️ Oracle de Precios</div>
+            <div class="card-body">Chainlink-compatible para referenciar el valor CCT a COP (peso colombiano) y mantener paridad para pagos de matrículas.</div>
+          </div>
+        </div>
+        <div class="animate-stagger" style="text-align:left;">
+          <p class="label" style="margin-bottom:10px;font-size:clamp(9px,1.1vw,12px);">Capa 5 — dApp</p>
+          <div class="card" style="margin-bottom:10px;">
+            <div class="card-title">💼 Wallet Estudiantil</div>
+            <div class="card-body">App web/móvil con React + ethers.js. Muestra saldo CCT, historial de transacciones, certificados verificados y estado de becas.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🖥 Dashboard Administrativo</div>
+            <div class="card-body">Panel para tesorería: emisión de tokens, asignación de becas, auditoría de transacciones y exportación de reportes.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SLIDE 9 — CAPAS 6 Y 7 ═══ -->
+  <div class="slide bg-accent">
+    <div class="slide-content">
+      <span class="label">Capas 6 & 7</span>
+      <h2>Identidad Digital & Gobernanza DAO</h2>
+      <div class="grid-2" style="margin-top:8px;">
+        <div class="animate-stagger" style="text-align:left;">
+          <p class="label" style="margin-bottom:10px;font-size:clamp(9px,1.1vw,12px);">Capa 6 — Identidad</p>
+          <div class="card" style="margin-bottom:10px;">
+            <div class="card-title">🪪 DID Universitario (W3C)</div>
+            <div class="card-body">Cada estudiante y docente tiene un Decentralized Identifier. Las credenciales académicas (diplomas, notas) son Verifiable Credentials firmadas por la institución.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔐 KYC On-Chain</div>
+            <div class="card-body">Proceso de verificación de identidad ligado al registro académico. Solo estudiantes matriculados pueden recibir y transferir CCT.</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+            <span class="tag tag-blue">W3C DID v1.0</span>
+            <span class="tag tag-purple">Verifiable Credentials</span>
+          </div>
+        </div>
+        <div class="animate-stagger" style="text-align:left;">
+          <p class="label" style="margin-bottom:10px;font-size:clamp(9px,1.1vw,12px);">Capa 7 — Gobernanza</p>
+          <div class="card" style="margin-bottom:10px;">
+            <div class="card-title">🗳 DAO Educativa</div>
+            <div class="card-body">Propuestas de cambio al protocolo son votadas por delegados: 40% instituciones, 40% docentes, 20% estudiantes. Votación on-chain con Snapshot.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">🔏 Multisig 3/5</div>
+            <div class="card-body">Operaciones críticas (mint, actualización de contratos) requieren firma de 3 de 5 wallets institucionales. Elimina punto único de falla.</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+            <span class="tag tag-gold">Snapshot</span>
+            <span class="tag tag-green">Gnosis Safe</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ SLIDE 10 — COMPARATIVA ═══ -->
+  <div class="slide bg-radial">
+    <div class="slide-content">
+      <span class="label">Comparativa</span>
+      <h2>Bitcoin vs Ethereum vs CriptoCampus</h2>
+      <div class="animate-fade-up" style="width:100%;margin-top:8px;overflow-x:auto;">
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Característica</th>
+              <th>₿ Bitcoin</th>
+              <th>Ξ Ethereum</th>
+              <th style="color:var(--accent)">🔗 CriptoCampus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Tipo de Red</td><td>Pública / PoW</td><td>Pública / PoS</td><td class="highlight-col">Permisionada / IBFT 2.0</td></tr>
+            <tr><td>Finalidad de bloque</td><td>~60 min (6 bloques)</td><td>~12 min (checkpoint)</td><td class="highlight-col">&lt; 4 segundos</td></tr>
+            <tr><td>Smart Contracts</td><td>No (Script básico)</td><td>Sí (EVM / Solidity)</td><td class="highlight-col">Sí (Solidity / Besu)</td></tr>
+            <tr><td>Consumo energético</td><td>Muy alto (PoW)</td><td>Bajo (PoS)</td><td class="highlight-col">Mínimo (IBFT 2.0)</td></tr>
+            <tr><td>Comisión por tx</td><td>Variable (~$1-50)</td><td>Variable gas fee</td><td class="highlight-col">Cero para usuarios</td></tr>
+            <tr><td>Control de acceso</td><td>Sin permiso</td><td>Sin permiso</td><td class="highlight-col">Solo nodos autorizados</td></tr>
+            <tr><td>Caso de uso principal</td><td>Reserva de valor</td><td>dApps / DeFi</td><td class="highlight-col">Pagos universitarios</td></tr>
+            <tr><td>TPS aproximado</td><td>7 TPS</td><td>15-100 TPS</td><td class="highlight-col">1000+ TPS</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ SLIDE 11 — CASOS DE USO ═══ -->
+  <div class="slide bg-grid">
+    <div class="slide-content">
+      <span class="label">Casos de Uso</span>
+      <h2>CCT en el Ecosistema Universitario</h2>
+      <div class="animate-stagger" style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:6px;">
+        <div class="use-case-row">
+          <div class="use-case-icon">🎓</div>
+          <div><div class="use-case-title">Pago de Matrículas y Servicios</div><div class="use-case-desc">Los estudiantes pagan matrículas, laboratorios y certificados usando CCT desde la wallet móvil. Registro inmutable en blockchain.</div></div>
+          <span class="tag tag-blue" style="flex-shrink:0">Token → Pago</span>
+        </div>
+        <div class="use-case-row">
+          <div class="use-case-icon">🏆</div>
+          <div><div class="use-case-title">Recompensas Académicas Automáticas</div><div class="use-case-desc">Smart contract libera CCT al estudiante al alcanzar un promedio ≥ 4.0. Sin trámite manual ni espera.</div></div>
+          <span class="tag tag-green" style="flex-shrink:0">Smart Contract</span>
+        </div>
+        <div class="use-case-row">
+          <div class="use-case-icon">📜</div>
+          <div><div class="use-case-title">Certificados Verificables On-Chain</div><div class="use-case-desc">El diploma lleva un hash SHA-256 en la blockchain. Empleadores verifican autenticidad escaneando un QR en segundos.</div></div>
+          <span class="tag tag-purple" style="flex-shrink:0">DID + NFT</span>
+        </div>
+        <div class="use-case-row">
+          <div class="use-case-icon">🔬</div>
+          <div><div class="use-case-title">Financiación de Proyectos de Investigación</div><div class="use-case-desc">La DAO vota la asignación de fondos CCT a grupos de investigación. Desembolso por hitos verificados on-chain.</div></div>
+          <span class="tag tag-gold" style="flex-shrink:0">DAO + Gobernanza</span>
+        </div>
+        <div class="use-case-row">
+          <div class="use-case-icon">🏫</div>
+          <div><div class="use-case-title">Transferencias entre Sedes</div><div class="use-case-desc">Homologaciones, traslados y pagos entre sedes de la misma universidad se procesan en &lt; 4 segundos, eliminando trámites bancarios.</div></div>
+          <span class="tag tag-blue" style="flex-shrink:0">P2P Instant</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ SLIDE 12 — TOKENOMICS ═══ -->
+  <div class="slide bg-accent">
+    <div class="slide-content">
+      <span class="label">Tokenomics</span>
+      <h2>Distribución de 100,000,000 CCT</h2>
+      <div class="grid-2" style="margin-top:6px;align-items:center;">
+        <div class="animate-fade-up" style="max-height:300px;">
+          <canvas id="tokenChart"></canvas>
+        </div>
+        <div class="animate-stagger" style="display:flex;flex-direction:column;gap:9px;text-align:left;">
+          <div class="card" style="border-color:rgba(0,212,255,0.3);">
+            <div class="card-title" style="color:var(--primary)">🎓 40% — Becas & Recompensas</div>
+            <div class="card-body">40M CCT reservados para incentivos académicos, becas automáticas y premios de investigación.</div>
+          </div>
+          <div class="card" style="border-color:rgba(123,47,190,0.4);">
+            <div class="card-title" style="color:#C77DFF">🏫 25% — Operaciones Institucionales</div>
+            <div class="card-body">25M CCT para tesorería institucional, servicios universitarios y pagos de proveedores.</div>
+          </div>
+          <div class="card" style="border-color:rgba(255,215,0,0.3);">
+            <div class="card-title" style="color:var(--accent)">🔬 20% — I+D y Ecosistema</div>
+            <div class="card-body">20M CCT para financiar investigación, hackathons y desarrollo del protocolo.</div>
+          </div>
+          <div class="card" style="border-color:rgba(0,230,118,0.3);">
+            <div class="card-title" style="color:var(--success)">💰 15% — Reserva Estratégica</div>
+            <div class="card-body">15M CCT bloqueados en multisig para emergencias, alianzas y expansión.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ SLIDE 13 — SEGURIDAD ═══ -->
+  <div class="slide bg-radial">
+    <div class="slide-content">
+      <span class="label">Seguridad</span>
+      <h2>Criptografía y Protección del Protocolo</h2>
+      <div class="grid-3 animate-stagger" style="margin-top:6px;">
+        <div class="card">
+          <div class="card-icon">🔑</div>
+          <div class="card-title">ECDSA secp256k1</div>
+          <div class="card-body">Firmas digitales con curva elíptica para autorizar transacciones. Compatible con Ethereum; claves de 256 bits.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <div class="card-title">Resistencia 51%</div>
+          <div class="card-body">IBFT 2.0 requiere que un atacante controle ≥ 2/3 de los validadores autorizados. Imposible sin acceso físico a los nodos institucionales.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">Anti-Double Spend</div>
+          <div class="card-body">Finalidad determinista en IBFT 2.0 elimina el doble gasto. Una transacción finalizada no puede ser revertida.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📦</div>
+          <div class="card-title">Auditoría de Contratos</div>
+          <div class="card-body">Smart contracts auditados con MythX y Slither antes del despliegue. Cobertura de pruebas ≥ 95% con Hardhat.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <div class="card-title">TLS 1.3 en APIs</div>
+          <div class="card-body">Comunicación cifrada entre capas con certificados X.509 emitidos por la PKI de la universidad.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔮</div>
+          <div class="card-title">Post-Cuántico (Futuro)</div>
+          <div class="card-body">Hoja de ruta para migrar a firmas Lattice-based (CRYSTALS-Dilithium) cuando la computación cuántica sea una amenaza real.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ SLIDE 14 — CONCLUSIONES ═══ -->
+  <div class="slide bg-grid">
+    <div class="slide-content">
+      <span class="label">Conclusiones & Hoja de Ruta</span>
+      <h2>Impacto y Próximos Pasos</h2>
+      <div class="timeline animate-fade-up" style="margin: 14px 0 10px;">
+        <div class="tl-step">
+          <div class="tl-dot">Q1</div>
+          <div class="tl-title">Prototipo</div>
+          <div class="tl-sub">Red local Besu + token CCT en testnet</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-dot">Q2</div>
+          <div class="tl-title">Piloto</div>
+          <div class="tl-sub">100 estudiantes, wallet móvil MVP</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-dot">Q3</div>
+          <div class="tl-title">Lanzamiento</div>
+          <div class="tl-sub">Red principal, becas automatizadas</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-dot">Q4</div>
+          <div class="tl-title">Escala</div>
+          <div class="tl-sub">Multi-sede, DAO activa</div>
+        </div>
+      </div>
+      <div class="grid-3 animate-stagger">
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">⚡</div>
+          <div class="card-title">Eficiencia</div>
+          <div class="card-body">Elimina intermediarios, reduce costos y acelera transacciones universitarias de días a segundos.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">🔍</div>
+          <div class="card-title">Transparencia</div>
+          <div class="card-body">Registro público e inmutable de cada transacción académica, beca y certificado emitido.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">🌱</div>
+          <div class="card-title">Inclusión</div>
+          <div class="card-body">Wallet accesible sin cuenta bancaria, democratizando el acceso a servicios financieros educativos.</div>
+        </div>
+      </div>
+      <div style="margin-top:6px;">
+        <p style="font-size:clamp(13px,1.8vw,18px);color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:600;">
+          "CriptoCampus demuestra que la tecnología blockchain no es solo para finanzas —<br/>
+          <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">puede transformar la educación.</span>"
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ SLIDE 15 — CIERRE ═══ -->
+  <div class="slide bg-radial">
+    <div class="slide-content animate-stagger">
+      <div style="font-size:clamp(40px,8vw,90px);">🔗</div>
+      <h1 class="slide-title" style="font-size:clamp(32px,5.5vw,68px);">¡Gracias!</h1>
+      <div class="divider"></div>
+      <p class="slide-subtitle">CriptoCampus (CCT) — Arquitectura Blockchain Educativa</p>
+      <p style="font-size:clamp(11px,1.4vw,15px);color:var(--muted);max-width:560px;">
+        Nuevas Tecnologías del Desarrollo de Software · Guía N.º 2<br/>
+        Universidad · 2026
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+        <span class="tag tag-blue">Hyperledger Besu</span>
+        <span class="tag tag-purple">Solidity · ERC-20</span>
+        <span class="tag tag-gold">IBFT 2.0</span>
+        <span class="tag tag-green">W3C DID</span>
+        <span class="tag tag-blue">DAO Gobernanza</span>
+      </div>
+      <p style="font-size:clamp(10px,1.2vw,13px);color:var(--muted);margin-top:4px;">
+        ← → para navegar · Clic para avanzar
+      </p>
+    </div>
+  </div>
+
+</div><!-- /.slide-deck -->
+
+<!-- ─── NAVIGATION ─── -->
+<div class="nav-controls">
+  <button class="nav-btn" onclick="prevSlide()" title="Anterior">←</button>
+  <span class="slide-counter"><span id="current">1</span> / <span id="total">15</span></span>
+  <button class="nav-btn" onclick="nextSlide()" title="Siguiente">→</button>
+</div>
+
+<script>
+  let current = 1;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  document.getElementById('total').textContent = total;
+
+  function showSlide(n) {
+    if (n < 1) n = 1;
+    if (n > total) n = total;
+    slides.forEach((s, i) => s.classList.toggle('active', i === n - 1));
+    current = n;
+    document.getElementById('current').textContent = n;
+    document.getElementById('progressBar').style.width = (n / total * 100) + '%';
+    if (n === 12) initChart();
+  }
+
+  function nextSlide() { showSlide(current + 1); }
+  function prevSlide() { showSlide(current - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-controls')) nextSlide();
+  });
+
+  // ─── Chart.js Tokenomics (slide 12) ───
+  let chartCreated = false;
+  function initChart() {
+    if (chartCreated) return;
+    chartCreated = true;
+    const ctx = document.getElementById('tokenChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Becas & Recompensas (40%)', 'Operaciones Institucionales (25%)', 'I+D y Ecosistema (20%)', 'Reserva Estratégica (15%)'],
+        datasets: [{
+          data: [40, 25, 20, 15],
+          backgroundColor: ['rgba(0,212,255,0.8)', 'rgba(123,47,190,0.8)', 'rgba(255,215,0,0.8)', 'rgba(0,230,118,0.8)'],
+          borderColor: ['#00D4FF', '#7B2FBE', '#FFD700', '#00E676'],
+          borderWidth: 2,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw}M CCT`
+            },
+            backgroundColor: 'rgba(13,21,38,0.9)',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#E8F0FE',
+            bodyColor: '#B0B8CC',
+            padding: 12
+          }
+        },
+        animation: { animateRotate: true, duration: 1000 }
+      }
+    });
+  }
+
+  showSlide(1);
+</script>
+</body>
+</html>
