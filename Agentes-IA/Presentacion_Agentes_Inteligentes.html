@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentes inteligentes de IA</title>
+<meta name="description" content="Presentación de Nuevas Tecnologías del Desarrollo: qué es un agente inteligente, principios, arquitectura, tipos, aplicaciones reales y un ejemplo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   AGENTES INTELIGENTES DE IA · Presentación autocontenida (HTML + CSS + JS)
+   Paleta: grises neutros cálidos + un único acento azul. Sin modo oscuro.
+   Personalizar: editar los tokens de :root (colores, fuentes, acento).
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+
+    /* Superficies y líneas (neutros) */
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface-2: #ECEAE4;
+    --line: #D9D6CD;
+    --line-strong: #B4B0A4;
+    --grid: rgba(27, 29, 33, 0.035);
+
+    /* Texto (contraste ≥ 4,5:1 sobre --bg y --surface) */
+    --ink: #1B1D21;
+    --ink-2: #444A52;
+    --ink-3: #5B6069;
+
+    /* Acento único + escala de azules grisáceos (no pastel) */
+    --accent: #2B5C99;
+    --accent-ink: #FFFFFF;
+    --s1: #E1E4E8;
+    --s2: #C2C8D0;
+    --s3: #98A4B4;
+    --s4: #4F6F9A;
+    --s5: #2B5C99;
+
+    /* Alerta (solo riesgos) */
+    --warn: #8A4B14;
+
+    --font: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+
+    /* Unidad de escala: 1 u = 1 % del ancho en 16:9; se limita por el alto */
+    --u: min(1vw, 1.7778vh);
+    --ctl: clamp(34px, 2.6vw, 46px);
+}
+
+/* ===========================================
+   VIEWPORT FITTING: ESTILOS BASE OBLIGATORIOS
+   =========================================== */
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; overflow-x: hidden; }
+html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    background: var(--bg);
+}
+body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* Todo el contenido se dimensiona en "em" a partir de esta base */
+    font-size: clamp(13px, calc(var(--u) * 1.34), 30px);
+    background-color: var(--bg);
+    background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 4em 4em;
+}
+
+.s-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5em 4em 0;
+    width: 100%;
+    max-width: calc(92em + 8em);
+    margin-inline: auto;
+}
+.kicker, .brand {
+    font-family: var(--mono);
+    font-size: max(0.7em, 11px);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+}
+.kicker b { color: var(--accent); font-weight: 500; margin-right: 0.6em; }
+
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    padding: 1.1em 4em 0.6em;
+    width: 100%;
+    max-width: calc(92em + 8em);
+    margin-inline: auto;
+}
+
+.s-foot {
+    min-height: calc(var(--ctl) + 20px);
+    display: flex;
+    align-items: center;
+    padding: 0 4em;
+    padding-right: max(4em, 310px); /* deja libre el ancho de los controles fijos */
+    width: 100%;
+    max-width: calc(92em + 8em);
+    margin-inline: auto;
+}
+.src { font-size: max(0.66em, 11px); color: var(--ink-3); line-height: 1.35; }
+
+/* ---------- Tipografía ---------- */
+h1 { font-size: 4.3em; line-height: 1.04; font-weight: 600; letter-spacing: -0.025em; }
+h2 { font-size: 2.3em; line-height: 1.12; font-weight: 600; letter-spacing: -0.015em; max-width: 26em; margin-bottom: 0.45em; }
+h3 { font-size: 1.12em; line-height: 1.25; font-weight: 600; }
+h4 { font-size: 1em; font-weight: 600; }
+p { line-height: 1.45; color: var(--ink-2); }
+.lead { font-size: 1.22em; line-height: 1.4; color: var(--ink); }
+.small { font-size: 0.84em; }
+.mono { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Cuerpo de la diapositiva: ocupa el resto y se centra en vertical (algo por encima del centro óptico) */
+.body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 1em; padding-bottom: 2em; }
+h3 + p { margin-top: 0.3em; }
+.body.top { justify-content: flex-start; }
+
+/* ---------- Componentes ---------- */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0.7em;
+    padding: 1.05em 1.2em;
+}
+.card.flat { background: transparent; border-style: dashed; }
+.card.accent { background: var(--accent); border-color: var(--accent); }
+.card.accent, .card.accent p, .card.accent h3, .card.accent dt, .card.accent dd { color: var(--accent-ink); }
+
+.grid { display: grid; gap: 0.9em; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+.ic {
+    width: 1.7em; height: 1.7em; flex: none;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.ic-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.4em; height: 2.4em; border-radius: 0.6em;
+    background: var(--surface-2); color: var(--accent);
+}
+.tag {
+    display: inline-block; font-family: var(--mono); font-size: max(0.7em, 11px);
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent);
+}
+.arr { width: 1.5em; height: 1.5em; flex: none; color: var(--line-strong); stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Lista definida (Cómo decide / Ejemplo / Limitación) */
+dl.facts { display: grid; gap: 0.55em; margin-top: 0.7em; }
+dl.facts dt { font-family: var(--mono); font-size: max(0.68em, 11px); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+dl.facts dd { font-size: 0.92em; line-height: 1.4; color: var(--ink-2); margin-top: 0.15em; }
+
+/* Nota al pie dentro del contenido */
+.note { font-size: 0.8em; color: var(--ink-3); }
+.note b { color: var(--ink-2); font-weight: 600; }
+
+/* ---------- Animación de entrada (con sentido: orden de lectura) ---------- */
+html.js .reveal { opacity: 0; transform: translateY(0.7em); transition: opacity 0.4s ease-out, transform 0.4s ease-out; transition-delay: calc(var(--i, 0) * 70ms); }
+html.js .slide.is-visible .reveal { opacity: 1; transform: none; }
+
+/* ---------- Portada ---------- */
+.cover .slide-content { flex-direction: row; align-items: center; gap: 3em; }
+.cover .left { flex: 1.15; display: flex; flex-direction: column; gap: 1.5em; min-width: 0; }
+.cover .right { flex: 0.85; display: flex; justify-content: center; min-width: 0; }
+.cover .right svg { width: 100%; max-width: 27em; height: auto; max-height: 100%; }
+.logo { height: 3.3em; width: auto; align-self: flex-start; }
+.cover h1 .soft { color: var(--accent); }
+.cover .authors { list-style: none; padding: 0; display: grid; gap: 0.2em; }
+.cover .authors li { font-size: 1.15em; font-weight: 500; color: var(--ink); }
+.cover .label { font-family: var(--mono); font-size: max(0.7em, 11px); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.4em; }
+.cover .hint { font-size: 0.78em; color: var(--ink-3); }
+kbd { font-family: var(--mono); font-size: max(0.92em, 11.5px); padding: 0.05em 0.45em; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 0.35em; background: var(--surface); color: var(--ink-2); }
+
+/* ---------- Contenido (agenda) ---------- */
+.agenda { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9em 2em; }
+.ag {
+    display: flex; gap: 1em; align-items: center; text-decoration: none; color: inherit;
+    padding: 0.9em 1.1em; border: 1px solid var(--line); border-radius: 0.7em; background: var(--surface);
+    transition: border-color 0.2s, transform 0.2s;
+}
+.ag:hover { border-color: var(--accent); transform: translateY(-2px); }
+.ag .n { font-family: var(--mono); font-size: 1.9em; font-weight: 500; color: var(--accent); min-width: 1.5em; }
+.ag b { display: block; font-weight: 600; font-size: 1.05em; }
+.ag small { display: block; font-size: 0.82em; color: var(--ink-3); margin-top: 0.15em; }
+
+/* ---------- Definición (S2) ---------- */
+.split { display: grid; grid-template-columns: 1fr 1.1fr; gap: 2.4em; align-items: center; }
+.quote { border-left: 0.3em solid var(--accent); padding: 0.2em 0 0.2em 1em; }
+.quote p { color: var(--ink); font-size: 1.3em; line-height: 1.35; font-weight: 500; }
+.quote cite { display: block; margin-top: 0.6em; font-style: normal; font-size: 0.8em; color: var(--ink-3); }
+.stack { display: grid; gap: 0.5em; }
+.row-node { display: flex; align-items: center; gap: 1em; }
+.row-node .card { flex: 1; display: flex; align-items: center; gap: 1em; padding: 0.8em 1.1em; }
+.row-node h3 { margin-bottom: 0.1em; }
+.row-node p { font-size: 0.9em; }
+.down { display: flex; justify-content: center; }
+.down .arr { transform: rotate(90deg); }
+.feedback { display: flex; align-items: center; gap: 0.7em; padding: 0.7em 1.1em; border: 1px dashed var(--line-strong); border-radius: 0.7em; color: var(--ink-2); font-size: 0.9em; }
+.feedback .ic { color: var(--accent); width: 1.4em; height: 1.4em; }
+
+/* ---------- Tabla comparativa (S3) ---------- */
+table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 0.7em; overflow: hidden; }
+table.cmp th, table.cmp td { text-align: left; padding: 0.7em 1.1em; vertical-align: top; line-height: 1.4; }
+table.cmp thead th { background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 0.95em; }
+table.cmp tbody th { font-weight: 600; color: var(--ink); width: 21%; background: var(--surface-2); }
+table.cmp tbody td { color: var(--ink-2); font-size: 0.95em; }
+table.cmp tbody td.yes { color: var(--ink); }
+table.cmp tbody tr + tr > * { border-top: 1px solid var(--line); }
+.mk { display: inline-flex; vertical-align: -0.2em; margin-right: 0.45em; }
+.mk .ic { width: 1.15em; height: 1.15em; stroke-width: 2.2; }
+.mk.no { color: var(--ink-3); }
+.mk.ok { color: var(--accent); }
+
+/* ---------- Pasos numerados (S4) ---------- */
+.step-card { display: flex; flex-direction: column; gap: 0.5em; }
+.step-n { font-family: var(--mono); font-size: 2.3em; font-weight: 500; color: var(--accent); line-height: 1; }
+.band { display: flex; gap: 1em; align-items: flex-start; padding: 0.9em 1.2em; background: var(--surface-2); border-radius: 0.7em; }
+.band .ic { color: var(--accent); margin-top: 0.1em; }
+.band p { font-size: 0.92em; color: var(--ink); }
+
+/* ---------- ReAct / ReWOO (S6) ---------- */
+.loopline { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; margin: 0.6em 0 0.8em; }
+.pill { font-family: var(--mono); font-size: 0.85em; padding: 0.4em 0.85em; border-radius: 2em; border: 1px solid var(--accent); color: var(--accent); background: var(--surface); }
+.pill.solid { background: var(--accent); color: var(--accent-ink); }
+.ul { list-style: none; padding: 0; display: grid; gap: 0.45em; }
+.ul li { position: relative; padding-left: 1.1em; font-size: 0.93em; line-height: 1.4; color: var(--ink-2); }
+.ul li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 0.45em; height: 0.45em; border-radius: 50%; background: var(--accent); }
+
+/* ---------- Anatomía (S7) ---------- */
+.anat { border: 1.5px dashed var(--line-strong); border-radius: 1em; padding: 1.7em 1.3em 1.1em; position: relative; background: rgba(255,255,255,0.45); }
+.anat-label { position: absolute; top: -0.85em; left: 1.2em; background: var(--bg); padding: 0 0.6em; font-family: var(--mono); font-size: max(0.7em, 11px); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.anat-main { display: grid; grid-template-columns: 1fr auto 1.3fr auto 1fr; align-items: center; gap: 0.6em; }
+.core { text-align: center; padding: 1.1em 1em; }
+.core h3 { font-size: 1.25em; margin: 0.3em 0 0.2em; }
+.core p { font-size: 0.88em; }
+.tick { width: 2px; height: 1em; background: var(--line-strong); margin: 0 auto; }
+.support-label { text-align: center; font-family: var(--mono); font-size: max(0.68em, 11px); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin: 0.2em 0 0.5em; }
+.support { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8em; }
+.support .card { display: flex; gap: 0.8em; align-items: flex-start; padding: 0.8em 1em; }
+.support h3 { margin-bottom: 0.15em; }
+.support p { font-size: 0.86em; }
+
+/* ---------- Patrones (S8) ---------- */
+.pat svg { width: 100%; max-width: 9em; height: auto; display: block; margin: 0 auto 0.3em; }
+.pat h3 { margin-bottom: 0.45em; }
+.pat dl.facts { margin-top: 0.3em; }
+
+/* ---------- BDI (S9) ---------- */
+.bdi { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 0.6em; }
+.bdi .card { display: flex; gap: 0.8em; align-items: center; padding: 0.8em 1em; }
+.bdi .letter { font-family: var(--mono); font-size: 1.9em; font-weight: 500; color: var(--accent); }
+.bdi small { display: block; font-size: 0.76em; color: var(--ink-3); }
+.bdi b { display: block; font-size: 0.95em; font-weight: 600; color: var(--ink); }
+
+/* ---------- Escalera de tipos (S10) ---------- */
+.stairs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6em; align-items: end; height: 21em; }
+.step { border-radius: 0.6em 0.6em 0 0; padding: 0.9em 0.95em; display: flex; flex-direction: column; gap: 0.35em; height: var(--h); }
+.step .k { font-family: var(--mono); font-size: 0.8em; opacity: 0.85; }
+.step b { font-size: 1.02em; line-height: 1.2; font-weight: 600; }
+.step span { font-size: 0.82em; line-height: 1.35; }
+.step.l1 { background: var(--s1); color: var(--ink); }
+.step.l2 { background: var(--s2); color: var(--ink); }
+.step.l3 { background: var(--s3); color: var(--ink); }
+.step.l4 { background: var(--s4); color: #fff; }
+.step.l5 { background: var(--s5); color: #fff; }
+.over { display: flex; align-items: center; gap: 0.8em; padding: 0.7em 1.1em; border: 1px dashed var(--line-strong); border-radius: 0.7em; font-size: 0.92em; color: var(--ink-2); }
+.over .ic { color: var(--accent); }
+.over b { color: var(--ink); }
+
+/* ---------- Tipos (S11, S12) ---------- */
+.type .tag { margin-bottom: 0.25em; }
+.type h3 { font-size: 1.22em; margin-bottom: 0.1em; }
+
+/* ---------- Cifras (S14) ---------- */
+.stat { display: flex; flex-direction: column; gap: 0.35em; }
+.stat .big { font-size: 2.7em; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.stat .big small { font-size: 0.4em; font-weight: 500; letter-spacing: 0; }
+.stat .what { font-weight: 600; color: var(--ink); font-size: 1em; }
+.stat .who { font-size: 0.82em; color: var(--ink-3); line-height: 1.4; }
+
+/* ---------- Riesgos y buenas prácticas (S15) ---------- */
+.chips { display: flex; gap: 0.6em; flex-wrap: wrap; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 0.5em; padding: 0.4em 0.9em; border-radius: 2em; background: var(--surface); border: 1px solid var(--line); font-size: 0.88em; color: var(--ink); }
+.chip .ic { width: 1.1em; height: 1.1em; color: var(--accent); stroke-width: 2.2; }
+.col-h { display: flex; align-items: center; gap: 0.6em; margin-bottom: 0.7em; }
+.col-h .ic { width: 1.4em; height: 1.4em; }
+.col-h.risk { color: var(--warn); }
+.col-h.good { color: var(--accent); }
+.col-h h3 { color: var(--ink); }
+.plist { list-style: none; padding: 0; display: grid; gap: 0.75em; }
+.plist li { font-size: 0.92em; line-height: 1.4; color: var(--ink-2); padding-left: 0.9em; border-left: 3px solid var(--line-strong); }
+.plist.risk li { border-left-color: var(--warn); }
+.plist.good li { border-left-color: var(--accent); }
+.plist b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Flujo del ejemplo (S16) ---------- */
+.flowx { display: grid; grid-template-columns: 1fr auto 1.15fr auto 1.35fr auto 1fr; align-items: center; gap: 0.5em; }
+.flowx .card { padding: 0.85em 1em; }
+.flowx .card h3 { font-size: 1em; margin-bottom: 0.2em; }
+.flowx .card p { font-size: 0.82em; line-height: 1.35; }
+.fork { display: grid; gap: 0.6em; }
+.kpis { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 0.9em; }
+.kpi { display: flex; flex-direction: column; gap: 0.25em; }
+.kpi .big { font-size: 2.2em; font-weight: 600; color: var(--accent); line-height: 1; letter-spacing: -0.02em; }
+.kpi .big small { font-size: 0.42em; font-weight: 500; letter-spacing: 0; }
+.kpi p { font-size: 0.86em; }
+
+/* ---------- Gráfico Agent Arena (S17) ---------- */
+.arena { display: grid; grid-template-columns: 0.36fr 1fr; gap: 1.8em; align-items: center; }
+.meta3 { display: flex; gap: 0.5em; margin: 0.6em 0; }
+.meta3 div { flex: 1 1 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 0.6em; padding: 0.55em 0.7em; white-space: nowrap; }
+.meta3 b { display: block; font-size: 1.15em; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.meta3 span { font-size: max(0.68em, 11.5px); color: var(--ink-3); line-height: 1.25; display: block; margin-top: 0.15em; }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 0.7em; padding: 0.8em 1.1em 0.7em; }
+.crow { display: grid; grid-template-columns: 1.4em 12em 4.4em 1fr 3.6em 5.8em; gap: 0.7em; align-items: center; padding: 0.26em 0; border-top: 1px solid var(--line); font-size: 0.82em; }
+.crow.head { border-top: 0; font-family: var(--mono); font-size: max(0.62em, 11.5px); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 0.35em; }
+.crow .rk { font-family: var(--mono); color: var(--ink-3); }
+.crow .nm b { display: block; font-weight: 600; color: var(--ink); line-height: 1.15; }
+.crow .nm span { font-size: max(0.85em, 11.5px); color: var(--ink-3); }
+.crow .val { font-family: var(--mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.crow .rg, .crow .ct { font-family: var(--mono); color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+.track { position: relative; height: 1.3em; background-image: linear-gradient(to right, var(--line) 1px, transparent 1px); background-size: 27.7778% 100%; }
+.track .bar { position: absolute; left: 0; top: 0.3em; height: 0.7em; width: calc(var(--v) * 1%); background: var(--s1); }
+.track .ci { position: absolute; top: 50%; height: 2px; margin-top: -1px; left: calc(var(--l) * 1%); width: calc(var(--w) * 1%); background: var(--accent); }
+.track .ci::before, .track .ci::after { content: ""; position: absolute; top: -0.3em; width: 2px; height: 0.6em; background: var(--accent); }
+.track .ci::before { left: 0; }
+.track .ci::after { right: 0; }
+.track .dot { position: absolute; top: 50%; left: calc(var(--v) * 1%); width: 0.85em; height: 0.85em; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); transform: translate(-50%, -50%); box-sizing: content-box; }
+.axis { position: relative; height: 1.1em; }
+.axis span { position: absolute; transform: translateX(-50%); font-family: var(--mono); font-size: max(0.62em, 11.5px); color: var(--ink-3); }
+
+/* ---------- Señales Arena (S18) ---------- */
+.sig { display: flex; flex-direction: column; gap: 0.3em; }
+.sig .en { font-family: var(--mono); font-size: max(0.68em, 11px); color: var(--accent); letter-spacing: 0.03em; }
+.sig h3 { font-size: 1.1em; }
+.sig p { font-size: 0.86em; line-height: 1.38; }
+.lead-box { margin-top: auto; padding-top: 0.55em; border-top: 1px solid var(--line); font-size: 0.84em; color: var(--ink-2); line-height: 1.3; }
+.lead-box b { color: var(--ink); font-weight: 600; }
+.lead-box .v { font-family: var(--mono); color: var(--accent); font-weight: 500; }
+.rel { font-size: 0.74em; color: var(--ink-3); }
+.rel b { color: var(--ink-2); font-weight: 600; }
+
+/* ---------- Conclusiones y referencias ---------- */
+.concl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9em; }
+.concl .card { display: flex; gap: 0.9em; }
+.concl .n { font-family: var(--mono); font-size: 1.8em; font-weight: 500; color: var(--accent); line-height: 1; }
+.concl h3 { margin-bottom: 0.25em; font-size: 1.12em; }
+.concl p { font-size: 0.93em; }
+.closing { text-align: center; font-size: 1.7em; font-weight: 600; color: var(--accent); margin-top: 0.3em; }
+.refs { list-style: none; padding: 0; display: grid; gap: 0.8em; }
+.refs li { font-size: 0.98em; line-height: 1.45; color: var(--ink-2); padding-left: 2.2em; text-indent: -2.2em; }
+.refs a { color: var(--accent); word-break: break-word; }
+
+/* ---------- Controles de navegación ---------- */
+.progress { position: fixed; inset: 0 0 auto 0; height: 3px; background: transparent; z-index: 30; }
+.progress span { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0.05); transition: transform 0.35s ease-out; }
+.controls { position: fixed; right: 1.4rem; bottom: 0.9rem; z-index: 30; display: flex; align-items: center; gap: 0.35rem; }
+.controls button, .controls .count {
+    height: var(--ctl); min-width: var(--ctl); border-radius: 0.6rem; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); font: 500 13px var(--mono);
+    display: inline-flex; align-items: center; justify-content: center; padding: 0 0.6rem;
+}
+.controls button { cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+.controls button:hover { border-color: var(--accent); }
+.controls button:active { background: var(--surface-2); }
+.controls .ic { width: 18px; height: 18px; stroke-width: 2; }
+.controls .count { min-width: 4.6em; border-color: transparent; background: transparent; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 0.3em; }
+
+dialog#index { border: 1px solid var(--line-strong); border-radius: 1rem; padding: 0; width: min(92vw, 640px); max-height: 86vh; background: var(--surface); color: var(--ink); box-shadow: 0 20px 60px rgba(27,29,33,0.25); }
+dialog#index::backdrop { background: rgba(27,29,33,0.35); }
+dialog#index header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); font-weight: 600; }
+dialog#index ol { list-style: none; padding: 0.6rem; overflow: auto; max-height: calc(86vh - 4rem); }
+dialog#index .sec { font: 500 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 0.8rem 0.6rem 0.3rem; }
+dialog#index a { display: flex; gap: 0.8rem; padding: 0.55rem 0.6rem; border-radius: 0.5rem; text-decoration: none; color: var(--ink); font-size: 14px; }
+dialog#index a:hover { background: var(--surface-2); }
+dialog#index a span { font: 500 12px var(--mono); color: var(--accent); min-width: 2em; }
+dialog#index button { cursor: pointer; border: 1px solid var(--line); background: var(--surface); border-radius: 0.5rem; height: 34px; padding: 0 0.8rem; font: 500 13px var(--font); color: var(--ink); }
+
+/* ---------- Adaptación a pantallas pequeñas / portrait ---------- */
+@media (max-width: 900px) {
+    .g3, .g4 { grid-template-columns: repeat(2, 1fr); }
+    .cover .slide-content { flex-direction: column; justify-content: center; }
+    .cover .right { display: none; }
+    .split, .arena { grid-template-columns: 1fr; }
+    .anat-main { grid-template-columns: 1fr; }
+    .anat-main > .arr { transform: rotate(90deg); justify-self: center; }
+    .support { grid-template-columns: 1fr; }
+    .flowx { grid-template-columns: 1fr; }
+    .flowx > .arr { transform: rotate(90deg); justify-self: center; }
+    .stairs { grid-template-columns: 1fr; height: auto; }
+    .step { height: auto; border-radius: 0.6em; }
+    .bdi { grid-template-columns: 1fr; }
+    .bdi > .arr { transform: rotate(90deg); justify-self: center; }
+    .kpis { grid-template-columns: 1fr; }
+    .concl { grid-template-columns: 1fr; }
+    .agenda { grid-template-columns: 1fr; }
+    .s-foot { padding-right: 4em; }
+    /* En móviles el contenido puede no caber: se permite desplazarlo dentro de la diapositiva */
+    .slide-content { overflow-y: auto; }
+}
+@media (max-width: 600px) {
+    .g2, .g3, .g4 { grid-template-columns: 1fr; }
+    h1 { font-size: 2.6em; }
+    h2 { font-size: 1.7em; }
+    .crow { grid-template-columns: 1.3em 1fr 4em; }
+    .crow .track, .crow .rg, .crow .ct, .axis, .crow.head span:nth-child(n+4) { display: none; }
+    .s-head, .slide-content, .s-foot { padding-left: 1.2em; padding-right: 1.2em; }
+}
+@media (max-height: 700px) { .hint { display: none; } }
+@media (max-height: 600px) { .cover .hint, .brand { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    html { scroll-behavior: auto; }
+    html.js .reveal { transform: none; }
+}
+
+/* Impresión / exportar a PDF: una diapositiva por página, todo visible */
+@page { size: landscape; margin: 0; }
+@media print {
+    html, body { height: auto; overflow: visible; }
+    html { scroll-snap-type: none; }
+    .slide { break-after: page; break-inside: avoid; height: 100vh; }
+    html.js .reveal { opacity: 1 !important; transform: none !important; }
+    .controls, .progress, dialog { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ Sprite de iconos (trazo, mismo estilo en todo el documento) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M1 1.5l8 3.5-8 3.5z" fill="#444A52"/>
+        </marker>
+    </defs>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-plan" viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M3.5 6l1.2 1.2L7 4.8M3.5 12l1.2 1.2L7 10.8M3.5 18l1.2 1.2L7 16.8"/></symbol>
+    <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M17.5 14.6c2.3.3 3.8 2 3.8 4.4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 7.6-8 9-4.8-1.4-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.4A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.4v.1"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 8l-5 4 5 4M16 8l5 4-5 4M14 5l-4 14"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/><path d="M19 20c0 1.5-2 2-5 2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="6" r="2.4"/><path d="M8.4 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.6"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.4-1.5 1.6-2.3 3-2.3s2.6.8 3 2.3M14.5 10h4M14.5 13h3"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3-6 7-6s7 2.4 7 6"/></symbol>
+</svg>
+
+<div class="progress" aria-hidden="true"><span></span></div>
+
+<main id="deck">
+
+<!-- ======================= 0 · PORTADA ======================= -->
+<section class="slide cover" id="s0" data-title="Portada" aria-labelledby="t0">
+    <header class="s-head">
+        <span class="kicker">Nuevas Tecnologías del Desarrollo · 2026-02</span>
+        <span class="brand">Universidad Manuela Beltrán</span>
+    </header>
+    <div class="slide-content">
+        <div class="left">
+            <img class="logo reveal" style="--i:0" src="data:image/png;base64,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" alt="Logo de la Universidad Manuela Beltrán">
+            <div class="reveal" style="--i:1">
+                <h1 id="t0">Agentes inteligentes <span class="soft">de IA</span></h1>
+                <p class="lead" style="margin-top:0.6em;">Qué son, cómo se construyen y dónde ya funcionan.</p>
+            </div>
+            <div class="reveal" style="--i:2">
+                <p class="label">Integrantes</p>
+                <ul class="authors">
+                    <li>Rodríguez Ángel, Santiago</li>
+                    <li>Olaya Rojas, Santiago</li>
+                </ul>
+            </div>
+            <p class="hint reveal" style="--i:3">Navegar: <kbd>←</kbd> <kbd>→</kbd> · Pantalla completa: <kbd>F</kbd> · Índice: <kbd>I</kbd></p>
+        </div>
+        <div class="right reveal" style="--i:2">
+            <!-- Ciclo del agente: percibe → razona → actúa → aprende -->
+            <svg viewBox="0 0 560 560" role="img" aria-label="Ciclo de un agente: percibe, razona, actúa y aprende">
+                <circle cx="280" cy="280" r="210" fill="none" stroke="#B4B0A4" stroke-width="1.5" stroke-dasharray="2 8"/>
+                <circle cx="280" cy="280" r="140" fill="none" stroke="#D9D6CD" stroke-width="1.5"/>
+                <g fill="none" stroke="#444A52" stroke-width="2" marker-end="url(#ah)">
+                    <path d="M327.2 75.4 A210 210 0 0 1 484.6 232.8"/>
+                    <path d="M484.6 327.2 A210 210 0 0 1 327.2 484.6"/>
+                    <path d="M232.8 484.6 A210 210 0 0 1 75.4 327.2"/>
+                    <path d="M75.4 232.8 A210 210 0 0 1 232.8 75.4"/>
+                </g>
+                <circle cx="280" cy="280" r="84" fill="#2B5C99"/>
+                <text x="280" y="277" text-anchor="middle" fill="#fff" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="25" font-weight="600">Agente</text>
+                <text x="280" y="304" text-anchor="middle" fill="#fff" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="19" opacity="0.9">de IA</text>
+                <g fill="#fff" stroke="#2B5C99" stroke-width="2">
+                    <circle cx="280" cy="70" r="42"/><circle cx="490" cy="280" r="42"/>
+                    <circle cx="280" cy="490" r="42"/><circle cx="70" cy="280" r="42"/>
+                </g>
+                <g font-family="IBM Plex Mono, Consolas, monospace" font-size="14" fill="#1B1D21" text-anchor="middle">
+                    <text x="280" y="75">percibe</text><text x="490" y="285">razona</text>
+                    <text x="280" y="495">actúa</text><text x="70" y="285">aprende</text>
+                </g>
+            </svg>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Datos consultados el 30 de septiembre de 2026.</span></footer>
+</section>
+
+<!-- ======================= 1 · CONTENIDO ======================= -->
+<section class="slide" id="s1" data-title="Contenido" aria-labelledby="t1">
+    <header class="s-head"><span class="kicker"><b>—</b>Contenido</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t1">Lo que vamos a ver</h2>
+        <div class="body">
+            <nav class="agenda" aria-label="Contenido de la presentación">
+                <a class="ag reveal" style="--i:0" href="#s2"><span class="n">01</span><span><b>¿Qué es un agente inteligente?</b><small>Definición y diferencia con un chatbot</small></span></a>
+                <a class="ag reveal" style="--i:1" href="#s4"><span class="n">02</span><span><b>Principios clave</b><small>Cómo percibe, razona y actúa</small></span></a>
+                <a class="ag reveal" style="--i:2" href="#s7"><span class="n">03</span><span><b>Arquitectura de los agentes de IA</b><small>Componentes, patrones y marcos de razonamiento</small></span></a>
+                <a class="ag reveal" style="--i:3" href="#s10"><span class="n">04</span><span><b>Tipos de agentes</b><small>De reflejo simple a sistemas multiagente</small></span></a>
+                <a class="ag reveal" style="--i:4" href="#s13"><span class="n">05</span><span><b>Aplicaciones reales</b><small>Sectores, resultados medibles y riesgos</small></span></a>
+                <a class="ag reveal" style="--i:5" href="#s16"><span class="n">06</span><span><b>Ejemplo</b><small>Un caso de IBM y el ranking Agent Arena</small></span></a>
+            </nav>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuentes principales: IBM Think y Agent Arena (arena.ai). Detalle en la última diapositiva.</span></footer>
+</section>
+
+<!-- ======================= 2 · DEFINICIÓN ======================= -->
+<section class="slide" id="s2" data-title="Un agente percibe, decide y actúa" data-sec="01 · Qué es un agente inteligente" aria-labelledby="t2">
+    <header class="s-head"><span class="kicker"><b>01</b>Qué es un agente inteligente</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t2">Un agente percibe, decide y actúa</h2>
+        <div class="body">
+            <div class="split">
+                <div class="stack" style="gap:1.2em;">
+                    <figure class="quote reveal" style="--i:0">
+                        <p>Un agente de IA es un sistema que realiza tareas de forma autónoma, diseñando flujos de trabajo con las herramientas disponibles.</p>
+                        <cite>IBM (traducción propia)</cite>
+                    </figure>
+                    <p class="reveal" style="--i:1"><b style="color:var(--ink)">Definición clásica:</b> todo aquello que percibe su entorno mediante sensores y actúa sobre él mediante actuadores (Russell y Norvig).</p>
+                    <p class="reveal small" style="--i:2">Va más allá del lenguaje: toma decisiones, resuelve problemas e interactúa con entornos externos. Sus metas y reglas las definen las personas.</p>
+                </div>
+                <div class="stack reveal" style="--i:1">
+                    <div class="row-node"><div class="card"><span class="ic-badge"><svg class="ic"><use href="#i-eye"/></svg></span><div><h3>Percibe</h3><p>Lee datos del entorno: texto, sistemas, bases de datos, sensores.</p></div></div></div>
+                    <div class="down"><svg class="arr"><use href="#i-arrow"/></svg></div>
+                    <div class="row-node"><div class="card accent"><span class="ic-badge"><svg class="ic"><use href="#i-bulb"/></svg></span><div><h3>Decide</h3><p>Razona con su memoria y su objetivo, y planifica los pasos.</p></div></div></div>
+                    <div class="down"><svg class="arr"><use href="#i-arrow"/></svg></div>
+                    <div class="row-node"><div class="card"><span class="ic-badge"><svg class="ic"><use href="#i-wrench"/></svg></span><div><h3>Actúa</h3><p>Usa herramientas, consulta otros agentes y ejecuta acciones.</p></div></div></div>
+                    <div class="feedback"><svg class="ic"><use href="#i-loop"/></svg><span>La acción cambia el entorno y produce una nueva percepción: el ciclo se repite.</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think. Definición clásica: Russell y Norvig (2021).</span></footer>
+</section>
+
+<!-- ======================= 3 · AGENTE VS CHATBOT ======================= -->
+<section class="slide" id="s3" data-title="Agente frente a chatbot no agéntico" data-sec="01 · Qué es un agente inteligente" aria-labelledby="t3">
+    <header class="s-head"><span class="kicker"><b>01</b>Qué es un agente inteligente</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t3">No todo chatbot es un agente</h2>
+        <div class="body">
+            <table class="cmp reveal" style="--i:0">
+                <thead><tr><th scope="col">Capacidad</th><th scope="col">Chatbot no agéntico</th><th scope="col">Agente de IA</th></tr></thead>
+                <tbody>
+                    <tr><th scope="row">Herramientas</th><td><span class="mk no"><svg class="ic"><use href="#i-x"/></svg></span>No dispone de herramientas.</td><td class="yes"><span class="mk ok"><svg class="ic"><use href="#i-check"/></svg></span>Llama APIs, bases de datos, búsquedas web y otros agentes.</td></tr>
+                    <tr><th scope="row">Memoria</th><td><span class="mk no"><svg class="ic"><use href="#i-x"/></svg></span>No conserva lo aprendido.</td><td class="yes"><span class="mk ok"><svg class="ic"><use href="#i-check"/></svg></span>Guarda interacciones pasadas y se adapta al usuario.</td></tr>
+                    <tr><th scope="row">Razonamiento y planificación</th><td><span class="mk no"><svg class="ic"><use href="#i-x"/></svg></span>Solo alcanza objetivos de corto plazo; no planifica.</td><td class="yes"><span class="mk ok"><svg class="ic"><use href="#i-check"/></svg></span>Descompone la meta en subtareas y corrige su plan.</td></tr>
+                    <tr><th scope="row">Autonomía</th><td><span class="mk no"><svg class="ic"><use href="#i-x"/></svg></span>Necesita entrada continua del usuario.</td><td class="yes"><span class="mk ok"><svg class="ic"><use href="#i-check"/></svg></span>Completa tareas complejas sin intervención continua.</td></tr>
+                    <tr><th scope="row">Aprendizaje</th><td><span class="mk no"><svg class="ic"><use href="#i-x"/></svg></span>No aprende de sus errores.</td><td class="yes"><span class="mk ok"><svg class="ic"><use href="#i-check"/></svg></span>Refina sus respuestas con retroalimentación.</td></tr>
+                </tbody>
+            </table>
+            <p class="note reveal" style="--i:1"><b>Matiz de IBM:</b> el chatbot es una modalidad de interacción; la agencia es un marco tecnológico. Un chatbot puede ser agéntico o no.</p>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, sección «Agentic versus nonagentic AI chatbots».</span></footer>
+</section>
+
+<!-- ======================= 4 · TRES ETAPAS ======================= -->
+<section class="slide" id="s4" data-title="Cómo funciona: tres etapas" data-sec="02 · Principios clave" aria-labelledby="t4">
+    <header class="s-head"><span class="kicker"><b>02</b>Principios clave</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t4">Cómo funciona: tres etapas</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card step-card reveal" style="--i:0"><span class="step-n">1</span><h3>Objetivos y planificación</h3><p>Una persona define la meta y las reglas. El agente descompone la tarea en subtareas y arma un plan.</p></article>
+                <article class="card step-card reveal" style="--i:1"><span class="step-n">2</span><h3>Razonamiento con herramientas</h3><p>Consulta bases de datos, búsquedas web, APIs y otros agentes. Reevalúa su plan y se autocorrige.</p></article>
+                <article class="card step-card reveal" style="--i:2"><span class="step-n">3</span><h3>Aprendizaje y reflexión</h3><p>Usa retroalimentación de personas u otros agentes para mejorar: es el refinamiento iterativo.</p></article>
+            </div>
+            <div class="band reveal" style="--i:3">
+                <svg class="ic"><use href="#i-route"/></svg>
+                <p><b>Ejemplo de IBM.</b> «¿Qué semana del próximo año es mejor para surfear en Grecia?» El agente consulta una base de reportes del clima, pregunta a otro agente experto en surf, combina ambos resultados y guarda la retroalimentación del usuario.</p>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, sección «How AI agents work».</span></footer>
+</section>
+
+<!-- ======================= 5 · SEIS CAPACIDADES ======================= -->
+<section class="slide" id="s5" data-title="Seis capacidades que lo sostienen" data-sec="02 · Principios clave" aria-labelledby="t5">
+    <header class="s-head"><span class="kicker"><b>02</b>Principios clave</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t5">Seis capacidades que lo sostienen</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card reveal" style="--i:0"><span class="ic-badge"><svg class="ic"><use href="#i-target"/></svg></span><h3 style="margin-top:0.6em">Autonomía</h3><p>Decide y actúa sin supervisión constante, con metas y reglas definidas por humanos.</p></article>
+                <article class="card reveal" style="--i:1"><span class="ic-badge"><svg class="ic"><use href="#i-eye"/></svg></span><h3 style="margin-top:0.6em">Percepción</h3><p>Basa sus acciones en la información que percibe del entorno y de sus herramientas.</p></article>
+                <article class="card reveal" style="--i:2"><span class="ic-badge"><svg class="ic"><use href="#i-bulb"/></svg></span><h3 style="margin-top:0.6em">Razonamiento</h3><p>Evalúa lo que sabe, detecta lo que le falta y elige la siguiente acción.</p></article>
+                <article class="card reveal" style="--i:3"><span class="ic-badge"><svg class="ic"><use href="#i-plan"/></svg></span><h3 style="margin-top:0.6em">Planificación</h3><p>Descompone objetivos complejos en tareas y subtareas, y ajusta el plan sobre la marcha.</p></article>
+                <article class="card reveal" style="--i:4"><span class="ic-badge"><svg class="ic"><use href="#i-db"/></svg></span><h3 style="margin-top:0.6em">Memoria</h3><p>Guarda interacciones y soluciones previas para personalizar y no repetir errores.</p></article>
+                <article class="card reveal" style="--i:5"><span class="ic-badge"><svg class="ic"><use href="#i-wrench"/></svg></span><h3 style="margin-top:0.6em">Uso de herramientas</h3><p>Accede a datos actualizados mediante APIs, búsquedas y otros agentes, sin intervención humana.</p></article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Síntesis del equipo a partir de IBM Think (Gutowska, s. f.; IBM, s. f.-a).</span></footer>
+</section>
+
+<!-- ======================= 6 · REACT VS REWOO ======================= -->
+<section class="slide" id="s6" data-title="Dos formas de razonar: ReAct y ReWOO" data-sec="02 · Principios clave" aria-labelledby="t6">
+    <header class="s-head"><span class="kicker"><b>02</b>Principios clave</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t6">Dos formas de razonar: ReAct y ReWOO</h2>
+        <div class="body">
+            <div class="grid g2">
+                <article class="card reveal" style="--i:0">
+                    <span class="tag">ReAct · Reasoning and Action</span>
+                    <h3 style="margin-top:0.3em">Pensar, actuar y observar</h3>
+                    <div class="loopline"><span class="pill">Pensar</span><svg class="arr"><use href="#i-arrow"/></svg><span class="pill">Actuar</span><svg class="arr"><use href="#i-arrow"/></svg><span class="pill">Observar</span><svg class="ic" style="color:var(--accent);width:1.3em;height:1.3em"><use href="#i-loop"/></svg></div>
+                    <ul class="ul">
+                        <li>Tras cada acción y cada respuesta de una herramienta, decide cuál usar a continuación.</li>
+                        <li>Resuelve paso a paso y mejora sus respuestas de forma iterativa.</li>
+                        <li>Puede mostrar cada «pensamiento», lo que explica cómo llegó a su respuesta.</li>
+                    </ul>
+                </article>
+                <article class="card reveal" style="--i:1">
+                    <span class="tag">ReWOO · Reasoning Without Observation</span>
+                    <h3 style="margin-top:0.3em">Planificar primero, ejecutar después</h3>
+                    <div class="loopline"><span class="pill">Planificar</span><svg class="arr"><use href="#i-arrow"/></svg><span class="pill">Llamar herramientas</span><svg class="arr"><use href="#i-arrow"/></svg><span class="pill solid">Responder</span></div>
+                    <ul class="ul">
+                        <li>Anticipa desde el inicio qué herramientas necesitará; no depende de sus resultados para planificar.</li>
+                        <li>Evita usos redundantes, reduce el consumo de tokens y la complejidad.</li>
+                        <li>La persona puede confirmar el plan antes de que se ejecute.</li>
+                    </ul>
+                </article>
+            </div>
+            <p class="note reveal" style="--i:2"><b>Según IBM:</b> no existe una arquitectura estándar única para construir agentes; hay varios paradigmas para resolver problemas de varios pasos.</p>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, sección «Reasoning paradigms».</span></footer>
+</section>
+
+<!-- ======================= 7 · ANATOMÍA ======================= -->
+<section class="slide" id="s7" data-title="Anatomía de un agente" data-sec="03 · Arquitectura" aria-labelledby="t7">
+    <header class="s-head"><span class="kicker"><b>03</b>Arquitectura de los agentes de IA</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t7">Anatomía de un agente</h2>
+        <div class="body">
+            <div class="anat reveal" style="--i:0">
+                <span class="anat-label">Orquestación · límites de seguridad · supervisión humana</span>
+                <div class="anat-main">
+                    <div class="card"><span class="tag">Entrada</span><h3>Objetivo</h3><p class="small">La meta y el contexto que entrega el usuario.</p></div>
+                    <svg class="arr"><use href="#i-arrow"/></svg>
+                    <div class="card accent core"><span class="ic-badge" style="background:rgba(255,255,255,0.16);color:#fff"><svg class="ic"><use href="#i-bulb"/></svg></span><h3>Núcleo: modelo de lenguaje (LLM)</h3><p>Razona, decide y orquesta los demás componentes.</p></div>
+                    <svg class="arr"><use href="#i-arrow"/></svg>
+                    <div class="card"><span class="tag">Salida</span><h3>Respuesta o acción</h3><p class="small">Resultado entregado y registrado.</p></div>
+                </div>
+                <div class="tick" aria-hidden="true"></div>
+                <p class="support-label">El núcleo consulta y usa</p>
+                <div class="support">
+                    <div class="card"><span class="ic-badge"><svg class="ic"><use href="#i-plan"/></svg></span><div><h3>Planificación</h3><p>Descompone la meta y reordena los pasos.</p></div></div>
+                    <div class="card"><span class="ic-badge"><svg class="ic"><use href="#i-db"/></svg></span><div><h3>Memoria</h3><p>Interacciones y soluciones previas.</p></div></div>
+                    <div class="card"><span class="ic-badge"><svg class="ic"><use href="#i-wrench"/></svg></span><div><h3>Herramientas</h3><p>APIs, bases de datos, búsqueda web y otros agentes.</p></div></div>
+                </div>
+            </div>
+            <p class="note reveal" style="--i:1"><b>Factores de agencia (IBM):</b> intencionalidad (planificar), previsión, autorreactividad y autorreflexión. La arquitectura debe proveer componentes para cada uno.</p>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Esquema elaborado por el equipo con base en IBM (s. f.-a) y Gutowska (s. f.).</span></footer>
+</section>
+
+<!-- ======================= 8 · PATRONES ======================= -->
+<section class="slide" id="s8" data-title="Patrones de arquitectura" data-sec="03 · Arquitectura" aria-labelledby="t8">
+    <header class="s-head"><span class="kicker"><b>03</b>Arquitectura de los agentes de IA</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t8">Patrones de arquitectura</h2>
+        <div class="body">
+            <div class="grid g4">
+                <article class="card pat reveal" style="--i:0">
+                    <svg viewBox="0 0 120 70" role="img" aria-label="Un solo agente con entrada y salida"><g fill="none" stroke="#444A52" stroke-width="1.8" marker-end="url(#ah)"><path d="M6 35h36" /><path d="M78 35h32"/></g><circle cx="60" cy="35" r="17" fill="#fff" stroke="#1B1D21" stroke-width="1.8"/><circle cx="60" cy="35" r="5" fill="#2B5C99"/></svg>
+                    <h3>Agente único</h3>
+                    <dl class="facts">
+                        <div><dt>Fortaleza</dt><dd>Simple, predecible y económico.</dd></div>
+                        <div><dt>Límite</dt><dd>Poco escalable y rígido.</dd></div>
+                        <div><dt>Ideal para</dt><dd>Chatbots simples y recomendadores.</dd></div>
+                    </dl>
+                </article>
+                <article class="card pat reveal" style="--i:1">
+                    <svg viewBox="0 0 120 70" role="img" aria-label="Un agente líder conectado a tres agentes subordinados"><g stroke="#444A52" stroke-width="1.6"><path d="M60 20L22 52M60 20v32M60 20l38 32"/></g><g fill="#fff" stroke="#1B1D21" stroke-width="1.8"><circle cx="22" cy="54" r="9"/><circle cx="60" cy="54" r="9"/><circle cx="98" cy="54" r="9"/></g><circle cx="60" cy="16" r="10" fill="#2B5C99" stroke="#2B5C99"/></svg>
+                    <h3>Vertical</h3>
+                    <dl class="facts">
+                        <div><dt>Fortaleza</dt><dd>Eficiente en flujos secuenciales; responsabilidad clara.</dd></div>
+                        <div><dt>Límite</dt><dd>Cuello de botella y punto único de falla.</dd></div>
+                        <div><dt>Ideal para</dt><dd>Aprobaciones en varios pasos.</dd></div>
+                    </dl>
+                </article>
+                <article class="card pat reveal" style="--i:2">
+                    <svg viewBox="0 0 120 70" role="img" aria-label="Cuatro agentes pares conectados entre sí"><g stroke="#444A52" stroke-width="1.6"><path d="M28 16L92 16M28 54L92 54M28 16v38M92 16v38M28 16L92 54M92 16L28 54"/></g><g fill="#fff" stroke="#1B1D21" stroke-width="1.8"><circle cx="28" cy="16" r="10"/><circle cx="92" cy="16" r="10"/><circle cx="28" cy="54" r="10"/><circle cx="92" cy="54" r="10"/></g></svg>
+                    <h3>Horizontal</h3>
+                    <dl class="facts">
+                        <div><dt>Fortaleza</dt><dd>Colaboración entre pares y trabajo en paralelo.</dd></div>
+                        <div><dt>Límite</dt><dd>Coordinación compleja y decisiones lentas.</dd></div>
+                        <div><dt>Ideal para</dt><dd>Lluvia de ideas y problemas interdisciplinarios.</dd></div>
+                    </dl>
+                </article>
+                <article class="card pat reveal" style="--i:3">
+                    <svg viewBox="0 0 120 70" role="img" aria-label="Un líder con agentes subordinados que además colaboran entre sí"><g stroke="#444A52" stroke-width="1.6"><path d="M60 20L22 52M60 20v32M60 20l38 32"/></g><g stroke="#444A52" stroke-width="1.6" stroke-dasharray="3 3"><path d="M31 54h20M69 54h20"/></g><g fill="#fff" stroke="#1B1D21" stroke-width="1.8"><circle cx="22" cy="54" r="9"/><circle cx="60" cy="54" r="9"/><circle cx="98" cy="54" r="9"/></g><circle cx="60" cy="16" r="10" fill="#2B5C99" stroke="#2B5C99"/></svg>
+                    <h3>Híbrida</h3>
+                    <dl class="facts">
+                        <div><dt>Fortaleza</dt><dd>Combina estructura con flexibilidad; el liderazgo cambia según la tarea.</dd></div>
+                        <div><dt>Límite</dt><dd>Más compleja y costosa de gestionar.</dd></div>
+                        <div><dt>Ideal para</dt><dd>Planeación estratégica.</dd></div>
+                    </dl>
+                </article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-a), «What is agentic architecture?». Los esquemas son representaciones simplificadas.</span></footer>
+</section>
+
+<!-- ======================= 9 · MARCOS ======================= -->
+<section class="slide" id="s9" data-title="Tres marcos según cómo razonan" data-sec="03 · Arquitectura" aria-labelledby="t9">
+    <header class="s-head"><span class="kicker"><b>03</b>Arquitectura de los agentes de IA</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t9">Tres marcos según cómo razonan</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card reveal" style="--i:0"><span class="tag">Reactiva</span><h3>Situación → acción</h3><p>Asocia cada situación directamente con una acción. No usa memoria ni predice: no aprende del pasado ni planifica.</p></article>
+                <article class="card reveal" style="--i:1"><span class="tag">Deliberativa</span><h3>Razonar antes de actuar</h3><p>Decide con razonamiento, planificación y un modelo interno del mundo. Predice resultados antes de elegir.</p></article>
+                <article class="card reveal" style="--i:2"><span class="tag">Cognitiva</span><h3>Imita el pensamiento humano</h3><p>Módulos de percepción, memoria, razonamiento y adaptación. Es la más avanzada y mejora con el tiempo.</p></article>
+            </div>
+            <p class="small reveal" style="--i:3"><b style="color:var(--ink)">Modelo BDI</b> (creencias, deseos, intenciones), un marco cognitivo de decisión racional:</p>
+            <div class="bdi reveal" style="--i:3">
+                <div class="card"><span class="letter">B</span><div><small>Creencias</small><b>«La puerta está cerrada»</b></div></div>
+                <svg class="arr"><use href="#i-arrow"/></svg>
+                <div class="card"><span class="letter">D</span><div><small>Deseos</small><b>«Quiero entrar al cuarto»</b></div></div>
+                <svg class="arr"><use href="#i-arrow"/></svg>
+                <div class="card"><span class="letter">I</span><div><small>Intenciones</small><b>«Abriré la puerta»</b></div></div>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-a), «What is agentic architecture?», sección «Agentic frameworks».</span></footer>
+</section>
+
+<!-- ======================= 10 · ESCALERA DE TIPOS ======================= -->
+<section class="slide" id="s10" data-title="Cinco tipos, de lo simple a lo avanzado" data-sec="04 · Tipos de agentes" aria-labelledby="t10">
+    <header class="s-head"><span class="kicker"><b>04</b>Tipos de agentes</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t10">Cinco tipos, de lo simple a lo avanzado</h2>
+        <div class="body">
+            <ol class="stairs" style="list-style:none;padding:0" aria-label="Escalera de tipos de agentes">
+                <li class="step l1 reveal" style="--h:46%;--i:0"><span class="k">01</span><b>Reflejo simple</b><span>Reglas condición-acción, sin memoria.</span></li>
+                <li class="step l2 reveal" style="--h:59%;--i:1"><span class="k">02</span><b>Reflejo basado en modelo</b><span>Memoria y un modelo interno del mundo.</span></li>
+                <li class="step l3 reveal" style="--h:72%;--i:2"><span class="k">03</span><b>Basado en objetivos</b><span>Planifica acciones para alcanzar una meta.</span></li>
+                <li class="step l4 reveal" style="--h:86%;--i:3"><span class="k">04</span><b>Basado en utilidad</b><span>Elige la acción que maximiza el beneficio.</span></li>
+                <li class="step l5 reveal" style="--h:100%;--i:4"><span class="k">05</span><b>De aprendizaje</b><span>Mejora con la experiencia de forma autónoma.</span></li>
+            </ol>
+            <div class="over reveal" style="--i:5"><svg class="ic"><use href="#i-users"/></svg><span><b>Sobre todos ellos:</b> los sistemas multiagente y jerárquicos pueden combinar los cinco tipos en una sola solución.</span></div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-b), «Types of AI agents»; Gutowska (s. f.).</span></footer>
+</section>
+
+<!-- ======================= 11 · TIPOS 1 A 3 ======================= -->
+<section class="slide" id="s11" data-title="Tipos 1 a 3: reflejo y objetivos" data-sec="04 · Tipos de agentes" aria-labelledby="t11">
+    <header class="s-head"><span class="kicker"><b>04</b>Tipos de agentes</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t11">Reflejo simple, con modelo y por objetivos</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card type reveal" style="--i:0">
+                    <span class="tag">Tipo 1</span><h3>Reflejo simple</h3>
+                    <dl class="facts">
+                        <div><dt>Cómo decide</dt><dd>Sigue reglas predefinidas: si se cumple una condición, ejecuta una acción. No guarda memoria.</dd></div>
+                        <div><dt>Ejemplo</dt><dd>Termostato que enciende la calefacción si la temperatura baja de un umbral.</dd></div>
+                        <div><dt>Limitación</dt><dd>Falla en escenarios dinámicos o complejos y puede repetir errores.</dd></div>
+                    </dl>
+                </article>
+                <article class="card type reveal" style="--i:1">
+                    <span class="tag">Tipo 2</span><h3>Reflejo basado en modelo</h3>
+                    <dl class="facts">
+                        <div><dt>Cómo decide</dt><dd>Mantiene un modelo interno del mundo que actualiza con cada percepción y usa junto con sus reglas.</dd></div>
+                        <div><dt>Ejemplo</dt><dd>Aspiradora robot que esquiva muebles y recuerda qué áreas ya limpió.</dd></div>
+                        <div><dt>Limitación</dt><dd>Sigue sin razonamiento ni aprendizaje avanzados para problemas complejos.</dd></div>
+                    </dl>
+                </article>
+                <article class="card type reveal" style="--i:2">
+                    <span class="tag">Tipo 3</span><h3>Basado en objetivos</h3>
+                    <dl class="facts">
+                        <div><dt>Cómo decide</dt><dd>Tiene una meta y usa planificación y razonamiento para elegir acciones que lo acerquen a ella.</dd></div>
+                        <div><dt>Ejemplo</dt><dd>Robot que planifica la ruta a una habitación evitando obstáculos conocidos.</dd></div>
+                        <div><dt>Limitación</dt><dd>Complejidad limitada: suele apoyarse en estrategias preprogramadas.</dd></div>
+                    </dl>
+                </article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-b), «Types of AI agents»; Gutowska (s. f.).</span></footer>
+</section>
+
+<!-- ======================= 12 · TIPOS 4, 5 Y MULTIAGENTE ======================= -->
+<section class="slide" id="s12" data-title="Tipos 4 y 5, y sistemas multiagente" data-sec="04 · Tipos de agentes" aria-labelledby="t12">
+    <header class="s-head"><span class="kicker"><b>04</b>Tipos de agentes</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t12">Utilidad, aprendizaje y sistemas multiagente</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card type reveal" style="--i:0">
+                    <span class="tag">Tipo 4</span><h3>Basado en utilidad</h3>
+                    <dl class="facts">
+                        <div><dt>Cómo decide</dt><dd>Asigna un valor de utilidad a cada resultado posible y elige la acción con mayor beneficio esperado.</dd></div>
+                        <div><dt>Ejemplo</dt><dd>Vehículo autónomo que equilibra velocidad, eficiencia de combustible y seguridad.</dd></div>
+                        <div><dt>Limitación</dt><dd>Es difícil crear funciones de utilidad precisas y confiables.</dd></div>
+                    </dl>
+                </article>
+                <article class="card type reveal" style="--i:1">
+                    <span class="tag">Tipo 5</span><h3>De aprendizaje</h3>
+                    <dl class="facts">
+                        <div><dt>Cómo decide</dt><dd>Incorpora experiencias nuevas a su conocimiento. Tiene cuatro elementos: desempeño, aprendizaje, crítico y generador de problemas.</dd></div>
+                        <div><dt>Ejemplo</dt><dd>Recomendaciones personalizadas en comercio electrónico que mejoran con el uso.</dd></div>
+                        <div><dt>Dependencia</dt><dd>Mejora a partir de la retroalimentación que recibe del entorno.</dd></div>
+                    </dl>
+                </article>
+                <article class="card type accent reveal" style="--i:2">
+                    <span class="tag" style="color:#fff;opacity:0.85">Sobre los cinco tipos</span><h3>Sistemas multiagente y jerárquicos</h3>
+                    <dl class="facts">
+                        <div><dt style="color:#fff;opacity:0.8">Cómo funcionan</dt><dd>Los agentes de nivel superior atienden objetivos generales y los de nivel inferior, tareas específicas.</dd></div>
+                        <div><dt style="color:#fff;opacity:0.8">Ejemplo</dt><dd>Fábrica inteligente: agentes reflejo manejan la automatización básica con reglas y sensores.</dd></div>
+                        <div><dt style="color:#fff;opacity:0.8">Idea clave</dt><dd>Los cinco tipos pueden desplegarse juntos, cada uno en la parte de la tarea que mejor maneja.</dd></div>
+                    </dl>
+                </article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-b), «Types of AI agents»; Gutowska (s. f.).</span></footer>
+</section>
+
+<!-- ======================= 13 · SECTORES ======================= -->
+<section class="slide" id="s13" data-title="Dónde ya se usan los agentes" data-sec="05 · Aplicaciones reales" aria-labelledby="t13">
+    <header class="s-head"><span class="kicker"><b>05</b>Aplicaciones reales</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t13">Dónde ya se usan los agentes</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card reveal" style="--i:0"><span class="ic-badge"><svg class="ic"><use href="#i-headset"/></svg></span><h3 style="margin-top:0.6em">Atención al cliente</h3><p>Asistentes virtuales en sitios web y apps; también simulan entrevistas y dan apoyo en salud mental.</p></article>
+                <article class="card reveal" style="--i:1"><span class="ic-badge"><svg class="ic"><use href="#i-heart"/></svg></span><h3 style="margin-top:0.6em">Salud</h3><p>Sistemas multiagente que planifican tratamientos en urgencias y gestionan procesos con medicamentos.</p></article>
+                <article class="card reveal" style="--i:2"><span class="ic-badge"><svg class="ic"><use href="#i-bank"/></svg></span><h3 style="margin-top:0.6em">Finanzas</h3><p>Detectan fraude de forma continua, vigilan el cumplimiento normativo y apoyan el análisis de préstamos.</p></article>
+                <article class="card reveal" style="--i:3"><span class="ic-badge"><svg class="ic"><use href="#i-alert"/></svg></span><h3 style="margin-top:0.6em">Respuesta a emergencias</h3><p>Tras un desastre natural, identifican en redes sociales a quienes necesitan rescate y mapean su ubicación.</p></article>
+                <article class="card reveal" style="--i:4"><span class="ic-badge"><svg class="ic"><use href="#i-bolt"/></svg></span><h3 style="margin-top:0.6em">Energía</h3><p>Gestionan la red de forma inteligente y predicen mantenimiento; equilibran oferta y demanda en tiempo real.</p></article>
+                <article class="card reveal" style="--i:5"><span class="ic-badge"><svg class="ic"><use href="#i-code"/></svg></span><h3 style="margin-top:0.6em">Desarrollo de software</h3><p>Recorren el ciclo completo: especificación, implementación e iteración con mínima intervención.</p></article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-c), «AI agent use cases»; Gutowska (s. f.), «Use cases of AI agents».</span></footer>
+</section>
+
+<!-- ======================= 14 · CIFRAS ======================= -->
+<section class="slide" id="s14" data-title="Resultados medibles" data-sec="05 · Aplicaciones reales" aria-labelledby="t14">
+    <header class="s-head"><span class="kicker"><b>05</b>Aplicaciones reales</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t14">Resultados medibles</h2>
+        <div class="body">
+            <div class="grid g4">
+                <article class="card stat reveal" style="--i:0"><p class="big">90 → 45<small> min</small></p><p class="what">Revisión de contratos</p><p class="who">Dynamiq con IBM watsonx Orchestrate: asistente legal multiagente para una aseguradora.</p></article>
+                <article class="card stat reveal" style="--i:1"><p class="big">+45 %</p><p class="what">Productividad de desarrolladores</p><p class="who">IBM Bob, su «coding partner», usado por 10.000 desarrolladores de IBM.</p></article>
+                <article class="card stat reveal" style="--i:2"><p class="big">80+</p><p class="what">Solicitudes de RR. HH. automatizadas por completo</p><p class="who">IBM AskHR, el agente de recursos humanos de IBM.</p></article>
+                <article class="card stat reveal" style="--i:3"><p class="big">30.000</p><p class="what">Días laborales ahorrados (estimado)</p><p class="who">Pilotos en instituciones financieras: +20 % a 59 % de productividad en tareas administrativas, documentación y análisis preliminar (Foro Económico Mundial, citado por IBM).</p></article>
+            </div>
+            <p class="note reveal" style="--i:4"><b>Ojo:</b> son cifras publicadas por IBM sobre casos propios o de sus clientes; no las verificamos de forma independiente.</p>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.) e IBM (s. f.-c), IBM Think.</span></footer>
+</section>
+
+<!-- ======================= 15 · RIESGOS Y BUENAS PRÁCTICAS ======================= -->
+<section class="slide" id="s15" data-title="Riesgos y buenas prácticas" data-sec="05 · Aplicaciones reales" aria-labelledby="t15">
+    <header class="s-head"><span class="kicker"><b>05</b>Aplicaciones reales</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t15">Riesgos y buenas prácticas</h2>
+        <div class="body">
+            <div class="chips reveal" style="--i:0"><span class="small" style="color:var(--ink-3)">Beneficios según IBM:</span><span class="chip"><svg class="ic"><use href="#i-check"/></svg>Automatización a escala</span><span class="chip"><svg class="ic"><use href="#i-check"/></svg>Mejor desempeño multiagente</span><span class="chip"><svg class="ic"><use href="#i-check"/></svg>Respuestas más completas y personalizadas</span></div>
+            <div class="grid g2" style="gap:1.4em">
+                <article class="card reveal" style="--i:1">
+                    <div class="col-h risk"><svg class="ic"><use href="#i-alert"/></svg><h3>Riesgos y limitaciones</h3></div>
+                    <ul class="plist risk">
+                        <li><b>Dependencias multiagente.</b> Agentes con el mismo modelo base comparten fallas y pueden caer juntos.</li>
+                        <li><b>Bucles infinitos.</b> Sin un plan completo, repiten las mismas herramientas.</li>
+                        <li><b>Complejidad computacional.</b> Construirlos es costoso y algunas tareas tardan días.</li>
+                        <li><b>Privacidad de datos.</b> Sin supervisión ni límites, exponen información sensible.</li>
+                    </ul>
+                </article>
+                <article class="card reveal" style="--i:2">
+                    <div class="col-h good"><svg class="ic"><use href="#i-shield"/></svg><h3>Buenas prácticas</h3></div>
+                    <ul class="plist good">
+                        <li><b>Registros de actividad.</b> Bitácora de herramientas y agentes usados: da transparencia y confianza.</li>
+                        <li><b>Interrupción.</b> Poder detener la secuencia de acciones, con criterio: a veces detener causa más daño.</li>
+                        <li><b>Identificadores únicos.</b> Permiten rastrear quién desarrolló, desplegó y usó al agente.</li>
+                        <li><b>Supervisión humana.</b> Aprobar acciones de alto impacto, como correos masivos u operaciones financieras.</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, secciones «Benefits», «Risks and limitations» y «Best practices».</span></footer>
+</section>
+
+<!-- ======================= 16 · EJEMPLO: DYNAMIQ ======================= -->
+<section class="slide" id="s16" data-title="Ejemplo: asistente legal multiagente" data-sec="06 · Ejemplo" aria-labelledby="t16">
+    <header class="s-head"><span class="kicker"><b>06</b>Ejemplo</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t16">Ejemplo: asistente legal multiagente</h2>
+        <div class="body">
+            <p class="lead reveal" style="--i:0">Dynamiq construyó, con IBM watsonx Orchestrate, un asistente de investigación legal para una aseguradora.</p>
+            <div class="flowx reveal" style="--i:1">
+                <div class="card"><span class="tag">Entrada</span><h3>Consulta legal</h3><p>Llega una pregunta o un contrato por revisar.</p></div>
+                <svg class="arr"><use href="#i-arrow"/></svg>
+                <div class="card"><span class="tag">Agente 1</span><h3>Clasificador IBM Granite</h3><p>Modelo de bajo costo que evalúa cada consulta primero.</p></div>
+                <svg class="arr"><use href="#i-arrow"/></svg>
+                <div class="fork">
+                    <div class="card flat"><h3>Caso simple</h3><p>No se escala al agente más capaz.</p></div>
+                    <div class="card accent"><span class="tag" style="color:#fff;opacity:0.85">Agente 2</span><h3>Agente de investigación</h3><p>Más capaz: atiende solo los casos complejos.</p></div>
+                </div>
+                <svg class="arr"><use href="#i-arrow"/></svg>
+                <div class="card"><span class="tag">Salida</span><h3>Respuesta auditable</h3><p>Cada decisión se puede auditar.</p></div>
+            </div>
+            <div class="kpis">
+                <article class="card kpi reveal" style="--i:2"><p class="big">90 → 45<small> min</small></p><p>Tiempo de revisión de contratos, según IBM.</p></article>
+                <article class="card kpi reveal" style="--i:3"><span class="ic-badge" style="width:2em;height:2em"><svg class="ic" style="width:1.3em;height:1.3em"><use href="#i-route"/></svg></span><p><b style="color:var(--ink)">Enrutamiento inteligente:</b> solo los casos complejos llegan al agente más capaz.</p></article>
+                <article class="card kpi reveal" style="--i:4"><span class="ic-badge" style="width:2em;height:2em"><svg class="ic" style="width:1.3em;height:1.3em"><use href="#i-users"/></svg></span><p><b style="color:var(--ink)">Lectura del equipo:</b> multiagente con un nivel que delega, como el patrón vertical.</p></article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think. La frase «Lectura del equipo» es interpretación propia, no de IBM.</span></footer>
+</section>
+
+<!-- ======================= 17 · EJEMPLO: AGENT ARENA (RANKING) ======================= -->
+<section class="slide" id="s17" data-title="Agent Arena: ranking de agentes" data-sec="06 · Ejemplo" aria-labelledby="t17">
+    <header class="s-head"><span class="kicker"><b>06</b>Ejemplo · ¿Cómo se mide un agente?</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t17">Agent Arena: el ranking en tareas reales</h2>
+        <div class="body">
+            <div class="arena">
+                <div class="reveal" style="--i:0">
+                    <p>Ranking dinámico de modelos según qué tan bien <b style="color:var(--ink)">orquestan herramientas</b> en tareas agénticas reales: fiabilidad de herramientas, finalización de tareas y dirigibilidad.</p>
+                    <div class="meta3">
+                        <div><b>2.001.328</b><span>sesiones</span></div>
+                        <div><b>46</b><span>modelos</span></div>
+                        <div><b>30 sep</b><span>de 2026</span></div>
+                    </div>
+                    <ul class="ul">
+                        <li>El punto es la <b style="color:var(--ink)">mejora neta</b>; la línea, su margen de error (±) publicado.</li>
+                        <li>Los márgenes de los primeros puestos se traslapan: la diferencia entre ellos no es concluyente.</li>
+                        <li>El primero del ranking no es el más barato por tarea.</li>
+                    </ul>
+                </div>
+                <div class="chart reveal" style="--i:1" role="img" aria-label="Los diez primeros modelos por mejora neta, con su margen de error, rango posible de posición y costo mediano por tarea. Primero: Claude Fable 5.1 Max con 14,55 por ciento y 4,16 dólares por tarea.">
+                    <div class="crow head"><span>#</span><span>Modelo</span><span>Mejora</span><span>Margen de error (±)</span><span style="text-align:right">Rango</span><span style="text-align:right">USD/tarea</span></div>
+                    <div class="crow"><span class="rk">1</span><span class="nm"><b>Claude Fable 5.1 (Max)</b><span>Anthropic</span></span><span class="val">14,55 %</span><div class="track" style="--v:80.83;--l:70.17;--w:21.33"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">1–4</span><span class="ct">4,16</span></div>
+                    <div class="crow"><span class="rk">2</span><span class="nm"><b>Claude Opus 5.5 (High)</b><span>Anthropic</span></span><span class="val">13,78 %</span><div class="track" style="--v:76.56;--l:64.11;--w:24.89"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">1–4</span><span class="ct">1,56</span></div>
+                    <div class="crow"><span class="rk">3</span><span class="nm"><b>GPT 6 Astra (Max)</b><span>OpenAI</span></span><span class="val">12,18 %</span><div class="track" style="--v:67.67;--l:55;--w:25.33"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">1–7</span><span class="ct">2,91</span></div>
+                    <div class="crow"><span class="rk">4</span><span class="nm"><b>GPT 6 Sol (Max)</b><span>OpenAI</span></span><span class="val">10,65 %</span><div class="track" style="--v:59.17;--l:44.89;--w:28.56"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">1–10</span><span class="ct">0,92</span></div>
+                    <div class="crow"><span class="rk">5</span><span class="nm"><b>Claude Opus 5 (High)</b><span>Anthropic</span></span><span class="val">8,76 %</span><div class="track" style="--v:48.67;--l:40.33;--w:16.67"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">3–10</span><span class="ct">2,52</span></div>
+                    <div class="crow"><span class="rk">6</span><span class="nm"><b>Claude Opus 5 (Max)</b><span>Anthropic</span></span><span class="val">8,55 %</span><div class="track" style="--v:47.5;--l:38.78;--w:17.44"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">3–10</span><span class="ct">3,60</span></div>
+                    <div class="crow"><span class="rk">7</span><span class="nm"><b>Claude Fable 5 (High)</b><span>Anthropic</span></span><span class="val">8,37 %</span><div class="track" style="--v:46.5;--l:39.28;--w:14.44"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">4–10</span><span class="ct">2,01</span></div>
+                    <div class="crow"><span class="rk">8</span><span class="nm"><b>Gemini 4 Argon (High)</b><span>Google</span></span><span class="val">7,92 %</span><div class="track" style="--v:44;--l:26;--w:36"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">3–15</span><span class="ct">0,62</span></div>
+                    <div class="crow"><span class="rk">9</span><span class="nm"><b>GPT 5.6 Sol (xHigh)</b><span>OpenAI</span></span><span class="val">7,05 %</span><div class="track" style="--v:39.17;--l:31.5;--w:15.33"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">4–11</span><span class="ct">1,05</span></div>
+                    <div class="crow"><span class="rk">10</span><span class="nm"><b>Claude Opus 4.8 (High)</b><span>Anthropic</span></span><span class="val">6,92 %</span><div class="track" style="--v:38.44;--l:30.78;--w:15.33"><i class="bar"></i><i class="ci"></i><i class="dot"></i></div><span class="rg">4–11</span><span class="ct">1,36</span></div>
+                    <div class="crow" style="border-top:0;padding-bottom:0"><span></span><span></span><span></span><div class="axis"><span style="left:0">0</span><span style="left:27.78%">5</span><span style="left:55.56%">10</span><span style="left:83.33%">15 %</span></div><span></span><span></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Arena (2026), Agent Arena, categoría General, consultado el 30 de septiembre de 2026. El ranking se actualiza de forma continua. Rango = posiciones posibles según la página. USD/tarea = costo mediano (P50).</span></footer>
+</section>
+
+<!-- ======================= 18 · EJEMPLO: AGENT ARENA (SEÑALES) ======================= -->
+<section class="slide" id="s18" data-title="Qué mide Agent Arena" data-sec="06 · Ejemplo" aria-labelledby="t18">
+    <header class="s-head"><span class="kicker"><b>06</b>Ejemplo · ¿Cómo se mide un agente?</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t18">Qué mide: señales de desempeño reales</h2>
+        <div class="body">
+            <div class="grid g3">
+                <article class="card sig reveal" style="--i:0"><span class="en">Confirmed Success</span><h3>Éxito confirmado</h3><p>Con qué frecuencia el modelo logra que el usuario confirme que la tarea terminó.</p><div class="lead-box">Destaca: <b>Claude Fable 5.1 (Max)</b> · <span class="v">17,46 %</span></div><p class="rel">Se relaciona con: <b>autonomía y cumplir el objetivo</b></p></article>
+                <article class="card sig reveal" style="--i:1"><span class="en">Praise vs Complaint</span><h3>Elogio frente a queja</h3><p>Respuestas positivas de los usuarios en relación con las negativas.</p><div class="lead-box">Destaca: <b>GPT 6 Astra (Max)</b> · <span class="v">34,70 %</span></div><p class="rel">Se relaciona con: <b>calidad de la respuesta</b></p></article>
+                <article class="card sig reveal" style="--i:2"><span class="en">Steerability</span><h3>Dirigibilidad</h3><p>Qué tan bien incorpora las correcciones que hace el usuario.</p><div class="lead-box">Destaca: <b>Gemini 4 Argon (High)</b> · <span class="v">15,88 %</span></div><p class="rel">Se relaciona con: <b>supervisión humana</b></p></article>
+                <article class="card sig reveal" style="--i:3"><span class="en">Bash Recovery</span><h3>Recuperación ante fallos</h3><p>Se recupera de comandos fallidos con el menor número de pasos.</p><div class="lead-box">Destaca: <b>Claude Opus 5 (Max)</b> · <span class="v">13,05 %</span></div><p class="rel">Se relaciona con: <b>autocorrección del plan</b></p></article>
+                <article class="card sig reveal" style="--i:4"><span class="en">Tool Hallucination</span><h3>Alucinación de herramientas</h3><p>Probabilidad de inventar herramientas que no tiene (menos es mejor).</p><div class="lead-box">Destaca: <b>GPT 5.6 Terra (xHigh)</b> · <span class="v">0,32 %</span></div><p class="rel">Se relaciona con: <b>uso de herramientas</b>. Casi todos los del top rondan 0,3 %.</p></article>
+                <article class="card sig accent reveal" style="--i:5"><span class="en" style="color:#fff;opacity:0.85">Cost / Task (P50)</span><h3>Costo por tarea</h3><p>Costo mediano por tarea: entre USD 0,62 y USD 4,16 en los diez primeros.</p><div class="lead-box" style="border-top-color:rgba(255,255,255,0.35);color:#fff">GPT 6 Sol (Max): <b style="color:#fff">10,65 %</b> por USD 0,92. Claude Fable 5.1 (Max): <b style="color:#fff">14,55 %</b> por USD 4,16.</div><p class="rel" style="color:#fff;opacity:0.85">Se relaciona con: <b style="color:#fff">eficiencia</b></p></article>
+            </div>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Fuente: Arena (2026), Agent Arena, consultado el 30 de septiembre de 2026. «Destaca» es el modelo que la propia página señala como líder de cada señal; «Se relaciona con» es lectura del equipo.</span></footer>
+</section>
+
+<!-- ======================= 19 · CONCLUSIONES ======================= -->
+<section class="slide" id="s19" data-title="Conclusiones" aria-labelledby="t19">
+    <header class="s-head"><span class="kicker"><b>—</b>Cierre</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t19">Conclusiones</h2>
+        <div class="body">
+            <div class="concl">
+                <article class="card reveal" style="--i:0"><span class="n">1</span><div><h3>Un agente percibe, razona y actúa</h3><p>Lo distinguen de un chatbot las herramientas, la memoria y la planificación.</p></div></article>
+                <article class="card reveal" style="--i:1"><span class="n">2</span><div><h3>La arquitectura depende del problema</h3><p>Del agente único a los sistemas multiagente: vertical, horizontal o híbrido.</p></div></article>
+                <article class="card reveal" style="--i:2"><span class="n">3</span><div><h3>Hay resultados, con control</h3><p>IBM reporta 90 → 45 minutos y +45 % de productividad, y exige registros, interrupción y supervisión humana.</p></div></article>
+                <article class="card reveal" style="--i:3"><span class="n">4</span><div><h3>Evaluarlos exige tareas reales</h3><p>En Agent Arena los primeros puestos se traslapan y el costo por tarea va de USD 0,62 a 4,16.</p></div></article>
+            </div>
+            <p class="closing reveal" style="--i:4">Gracias. ¿Preguntas?</p>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Rodríguez Ángel, S. y Olaya Rojas, S. · Nuevas Tecnologías del Desarrollo · 2026-02</span></footer>
+</section>
+
+<!-- ======================= 20 · REFERENCIAS ======================= -->
+<section class="slide" id="s20" data-title="Referencias" aria-labelledby="t20">
+    <header class="s-head"><span class="kicker"><b>—</b>Referencias</span><span class="brand">Agentes inteligentes de IA</span></header>
+    <div class="slide-content">
+        <h2 id="t20">Referencias</h2>
+        <div class="body top">
+            <ul class="refs reveal" style="--i:0">
+                <li>Arena. (2026, 30 de septiembre). <i>Agent Arena: AI agent performance leaderboard</i> [Tabla de clasificación]. Recuperado el 30 de septiembre de 2026, de <a href="https://arena.ai/leaderboard/agent">https://arena.ai/leaderboard/agent</a></li>
+                <li>Gutowska, A. (s. f.). <i>What are AI agents?</i> IBM Think. <a href="https://www.ibm.com/think/topics/ai-agents">https://www.ibm.com/think/topics/ai-agents</a></li>
+                <li>IBM. (s. f.-a). <i>What is agentic architecture?</i> IBM Think. <a href="https://www.ibm.com/think/topics/agentic-architecture">https://www.ibm.com/think/topics/agentic-architecture</a></li>
+                <li>IBM. (s. f.-b). <i>Types of AI agents</i>. IBM Think. <a href="https://www.ibm.com/think/topics/ai-agent-types">https://www.ibm.com/think/topics/ai-agent-types</a></li>
+                <li>IBM. (s. f.-c). <i>AI agent use cases</i>. IBM Think. <a href="https://www.ibm.com/think/topics/ai-agent-use-cases">https://www.ibm.com/think/topics/ai-agent-use-cases</a></li>
+                <li>Russell, S., y Norvig, P. (2021). <i>Artificial intelligence: A modern approach</i> (4.ª ed.). Pearson.</li>
+            </ul>
+            <p class="note reveal" style="--i:1">Las páginas de IBM se consultaron en septiembre de 2026. Las cifras de Agent Arena corresponden al 30 de septiembre de 2026 y cambian a medida que llegan nuevas sesiones.</p>
+        </div>
+    </div>
+    <footer class="s-foot"><span class="src">Formato de referencias: APA 7.ª edición.</span></footer>
+</section>
+
+</main>
+
+<!-- ============ Controles de navegación ============ -->
+<nav class="controls" aria-label="Navegación de la presentación">
+    <button type="button" id="btn-index" aria-label="Abrir índice (tecla I)" title="Índice (I)"><svg class="ic"><use href="#i-menu"/></svg></button>
+    <button type="button" id="btn-full" aria-label="Pantalla completa (tecla F)" title="Pantalla completa (F)"><svg class="ic"><use href="#i-full"/></svg></button>
+    <button type="button" id="btn-prev" aria-label="Diapositiva anterior" title="Anterior (←)"><svg class="ic"><use href="#i-left"/></svg></button>
+    <span class="count" id="counter" aria-live="polite">1 / 21</span>
+    <button type="button" id="btn-next" aria-label="Diapositiva siguiente" title="Siguiente (→)"><svg class="ic"><use href="#i-right"/></svg></button>
+</nav>
+
+<dialog id="index" aria-label="Índice de diapositivas">
+    <header><span>Índice</span><button type="button" id="index-close">Cerrar</button></header>
+    <ol id="index-list"></ol>
+</dialog>
+
+<script>
+/* ===========================================
+   Controlador de la presentación
+   Teclado, táctil, botones, índice, hash y revelado por diapositiva.
+   La rueda del ratón usa el desplazamiento nativo con scroll-snap.
+   =========================================== */
+class Deck {
+    constructor() {
+        document.documentElement.classList.add('js');
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.total = this.slides.length;
+        this.current = 0;
+        this.bar = document.querySelector('.progress span');
+        this.counter = document.getElementById('counter');
+        this.dialog = document.getElementById('index');
+        this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        this.buildIndex();
+        this.observe();
+        this.bind();
+        this.openFromHash();
+    }
+
+    /* Revela cada diapositiva cuando ocupa la mayor parte de la pantalla */
+    observe() {
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                const slide = entry.target;
+                if (entry.isIntersecting) {
+                    slide.classList.add('is-visible');
+                    this.setCurrent(this.slides.indexOf(slide));
+                } else {
+                    slide.classList.remove('is-visible');
+                }
+            });
+        }, { threshold: 0.6 });
+        this.slides.forEach((s) => io.observe(s));
+    }
+
+    setCurrent(i) {
+        this.current = i;
+        this.bar.style.transform = `scaleX(${(i + 1) / this.total})`;
+        this.counter.textContent = `${i + 1} / ${this.total}`;
+        const hash = `#${this.slides[i].id}`;
+        if (location.hash !== hash) {
+            try { history.replaceState(null, '', hash); } catch (e) { /* entornos que no permiten cambiar la URL (p. ej. límites de Safari) */ }
+        }
+    }
+
+    goTo(i, instant = false) {
+        const n = Math.max(0, Math.min(this.total - 1, i));
+        this.current = n;
+        /* 'instant' ignora el scroll-behavior suave del CSS (enlaces directos) */
+        const behavior = instant ? 'instant' : (this.reduceMotion.matches ? 'auto' : 'smooth');
+        this.slides[n].scrollIntoView({ behavior, block: 'start' });
+    }
+
+    next() { this.goTo(this.current + 1); }
+    prev() { this.goTo(this.current - 1); }
+
+    openFromHash() {
+        const id = location.hash.slice(1);
+        const i = this.slides.findIndex((s) => s.id === id);
+        if (i > 0) this.goTo(i, true);
+    }
+
+    buildIndex() {
+        const list = document.getElementById('index-list');
+        let lastSection = null;
+        this.slides.forEach((slide, i) => {
+            const section = slide.dataset.sec || 'General';
+            if (section !== lastSection) {
+                const li = document.createElement('li');
+                li.className = 'sec';
+                li.textContent = section;
+                list.appendChild(li);
+                lastSection = section;
+            }
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = `#${slide.id}`;
+            const num = document.createElement('span');
+            num.textContent = String(i + 1).padStart(2, '0');
+            a.append(num, document.createTextNode(slide.dataset.title || `Diapositiva ${i + 1}`));
+            a.addEventListener('click', () => this.dialog.close());
+            li.appendChild(a);
+            list.appendChild(li);
+        });
+    }
+
+    toggleFullscreen() {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen?.();
+    }
+
+    bind() {
+        document.getElementById('btn-next').addEventListener('click', () => this.next());
+        document.getElementById('btn-prev').addEventListener('click', () => this.prev());
+        document.getElementById('btn-full').addEventListener('click', () => this.toggleFullscreen());
+        document.getElementById('btn-index').addEventListener('click', () => this.dialog.showModal());
+        document.getElementById('index-close').addEventListener('click', () => this.dialog.close());
+
+        document.addEventListener('keydown', (e) => {
+            if (this.dialog.open || e.ctrlKey || e.metaKey || e.altKey) return;
+            const k = e.key;
+            const handled = {
+                ArrowRight: () => this.next(), ArrowDown: () => this.next(), PageDown: () => this.next(),
+                ArrowLeft: () => this.prev(), ArrowUp: () => this.prev(), PageUp: () => this.prev(),
+                ' ': () => (e.shiftKey ? this.prev() : this.next()),
+                Home: () => this.goTo(0), End: () => this.goTo(this.total - 1),
+                f: () => this.toggleFullscreen(), F: () => this.toggleFullscreen(),
+                i: () => this.dialog.showModal(), I: () => this.dialog.showModal(),
+            }[k];
+            if (handled) { e.preventDefault(); handled(); }
+        });
+
+        /* Al cambiar el tamaño (pantalla completa, girar el dispositivo) se realinea con la diapositiva actual */
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => this.goTo(this.current, true), 120);
+        });
+
+        /* Deslizar en horizontal cambia de diapositiva (el vertical lo resuelve el scroll nativo) */
+        let x0 = 0, y0 = 0;
+        document.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - x0;
+            const dy = e.changedTouches[0].clientY - y0;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? this.next() : this.prev());
+        }, { passive: true });
+    }
+}
+new Deck();
+</script>
+</body>
+</html>
