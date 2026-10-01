@@ -282,7 +282,7 @@ table.cmp tbody tr + tr > * { border-top: 1px solid var(--line); }
 .bdi { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 0.6em; }
 .bdi .card { display: flex; gap: 0.8em; align-items: center; padding: 0.8em 1em; }
 .bdi .letter { font-family: var(--mono); font-size: 1.9em; font-weight: 500; color: var(--accent); }
-.bdi small { display: block; font-size: 0.76em; color: var(--ink-3); }
+.bdi small { display: block; font-size: max(0.76em, 11.5px); color: var(--ink-3); }
 .bdi b { display: block; font-size: 0.95em; font-weight: 600; color: var(--ink); }
 
 /* ---------- Escalera de tipos (S10) ---------- */
@@ -379,10 +379,7 @@ table.cmp tbody tr + tr > * { border-top: 1px solid var(--line); }
 .concl .n { font-family: var(--mono); font-size: 1.8em; font-weight: 500; color: var(--accent); line-height: 1; }
 .concl h3 { margin-bottom: 0.25em; font-size: 1.12em; }
 .concl p { font-size: 0.93em; }
-.closing { text-align: center; font-size: 1.7em; font-weight: 600; color: var(--accent); margin-top: 0.3em; }
-.refs { list-style: none; padding: 0; display: grid; gap: 0.8em; }
-.refs li { font-size: 0.98em; line-height: 1.45; color: var(--ink-2); padding-left: 2.2em; text-indent: -2.2em; }
-.refs a { color: var(--accent); word-break: break-word; }
+.ask { font-size: 2.3em; font-weight: 500; color: var(--accent); margin-top: 0.25em; letter-spacing: -0.01em; }
 
 /* ---------- Controles de navegación ---------- */
 .progress { position: fixed; inset: 0 0 auto 0; height: 3px; background: transparent; z-index: 30; }
@@ -572,7 +569,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </nav>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuentes principales: IBM Think y Agent Arena (arena.ai). Detalle en la última diapositiva.</span></footer>
+    <footer class="s-foot"><span class="src">Fuentes principales: IBM Think (ibm.com/think) y Agent Arena (arena.ai/leaderboard/agent).</span></footer>
 </section>
 
 <!-- ======================= 2 · DEFINICIÓN ======================= -->
@@ -601,7 +598,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think. Definición clásica: Russell y Norvig (2021).</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?». Definición clásica: Russell y Norvig.</span></footer>
 </section>
 
 <!-- ======================= 3 · AGENTE VS CHATBOT ======================= -->
@@ -623,7 +620,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             <p class="note reveal" style="--i:1"><b>Matiz de IBM:</b> el chatbot es una modalidad de interacción; la agencia es un marco tecnológico. Un chatbot puede ser agéntico o no.</p>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, sección «Agentic versus nonagentic AI chatbots».</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?», sección «Agentic versus nonagentic AI chatbots».</span></footer>
 </section>
 
 <!-- ======================= 4 · TRES ETAPAS ======================= -->
@@ -643,7 +640,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, sección «How AI agents work».</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?», sección «How AI agents work».</span></footer>
 </section>
 
 <!-- ======================= 5 · SEIS CAPACIDADES ======================= -->
@@ -662,7 +659,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Síntesis del equipo a partir de IBM Think (Gutowska, s. f.; IBM, s. f.-a).</span></footer>
+    <footer class="s-foot"><span class="src">Síntesis del equipo a partir de IBM Think («What are AI agents?» y «What is agentic architecture?»).</span></footer>
 </section>
 
 <!-- ======================= 6 · REACT VS REWOO ======================= -->
@@ -696,7 +693,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             <p class="note reveal" style="--i:2"><b>Según IBM:</b> no existe una arquitectura estándar única para construir agentes; hay varios paradigmas para resolver problemas de varios pasos.</p>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, sección «Reasoning paradigms».</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?», sección «Reasoning paradigms».</span></footer>
 </section>
 
 <!-- ======================= 7 · ANATOMÍA ======================= -->
@@ -725,7 +722,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             <p class="note reveal" style="--i:1"><b>Factores de agencia (IBM):</b> intencionalidad (planificar), previsión, autorreactividad y autorreflexión. La arquitectura debe proveer componentes para cada uno.</p>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Esquema elaborado por el equipo con base en IBM (s. f.-a) y Gutowska (s. f.).</span></footer>
+    <footer class="s-foot"><span class="src">Esquema elaborado por el equipo con base en IBM Think («What is agentic architecture?» y «What are AI agents?»).</span></footer>
 </section>
 
 <!-- ======================= 8 · PATRONES ======================= -->
@@ -774,7 +771,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-a), «What is agentic architecture?». Los esquemas son representaciones simplificadas.</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What is agentic architecture?». Los esquemas son representaciones simplificadas.</span></footer>
 </section>
 
 <!-- ======================= 9 · MARCOS ======================= -->
@@ -798,7 +795,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-a), «What is agentic architecture?», sección «Agentic frameworks».</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What is agentic architecture?», sección «Agentic frameworks».</span></footer>
 </section>
 
 <!-- ======================= 10 · ESCALERA DE TIPOS ======================= -->
@@ -817,7 +814,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             <div class="over reveal" style="--i:5"><svg class="ic"><use href="#i-users"/></svg><span><b>Sobre todos ellos:</b> los sistemas multiagente y jerárquicos pueden combinar los cinco tipos en una sola solución.</span></div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-b), «Types of AI agents»; Gutowska (s. f.).</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «Types of AI agents» y «What are AI agents?».</span></footer>
 </section>
 
 <!-- ======================= 11 · TIPOS 1 A 3 ======================= -->
@@ -854,7 +851,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-b), «Types of AI agents»; Gutowska (s. f.).</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «Types of AI agents» y «What are AI agents?».</span></footer>
 </section>
 
 <!-- ======================= 12 · TIPOS 4, 5 Y MULTIAGENTE ======================= -->
@@ -891,7 +888,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-b), «Types of AI agents»; Gutowska (s. f.).</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «Types of AI agents» y «What are AI agents?».</span></footer>
 </section>
 
 <!-- ======================= 13 · SECTORES ======================= -->
@@ -910,7 +907,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: IBM (s. f.-c), «AI agent use cases»; Gutowska (s. f.), «Use cases of AI agents».</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «AI agent use cases» y «What are AI agents?».</span></footer>
 </section>
 
 <!-- ======================= 14 · CIFRAS ======================= -->
@@ -928,7 +925,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             <p class="note reveal" style="--i:4"><b>Ojo:</b> son cifras publicadas por IBM sobre casos propios o de sus clientes; no las verificamos de forma independiente.</p>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.) e IBM (s. f.-c), IBM Think.</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?» y «AI agent use cases».</span></footer>
 </section>
 
 <!-- ======================= 15 · RIESGOS Y BUENAS PRÁCTICAS ======================= -->
@@ -960,7 +957,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think, secciones «Benefits», «Risks and limitations» y «Best practices».</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?», secciones «Benefits», «Risks and limitations» y «Best practices».</span></footer>
 </section>
 
 <!-- ======================= 16 · EJEMPLO: DYNAMIQ ======================= -->
@@ -989,7 +986,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Gutowska (s. f.), IBM Think. La frase «Lectura del equipo» es interpretación propia, no de IBM.</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: IBM Think, «What are AI agents?». «Lectura del equipo» es interpretación propia, no de IBM.</span></footer>
 </section>
 
 <!-- ======================= 17 · EJEMPLO: AGENT ARENA (RANKING) ======================= -->
@@ -1029,7 +1026,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Arena (2026), Agent Arena, categoría General, consultado el 30 de septiembre de 2026. El ranking se actualiza de forma continua. Rango = posiciones posibles según la página. USD/tarea = costo mediano (P50).</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: Agent Arena (arena.ai/leaderboard/agent), categoría General, consultado el 30 de septiembre de 2026. El ranking se actualiza de forma continua. Rango = posiciones posibles según la página. USD/tarea = costo mediano (P50).</span></footer>
 </section>
 
 <!-- ======================= 18 · EJEMPLO: AGENT ARENA (SEÑALES) ======================= -->
@@ -1048,7 +1045,7 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
             </div>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Fuente: Arena (2026), Agent Arena, consultado el 30 de septiembre de 2026. «Destaca» es el modelo que la propia página señala como líder de cada señal; «Se relaciona con» es lectura del equipo.</span></footer>
+    <footer class="s-foot"><span class="src">Fuente: Agent Arena (arena.ai/leaderboard/agent), consultado el 30 de septiembre de 2026. «Destaca» es el modelo que la propia página señala como líder de cada señal; «Se relaciona con» es lectura del equipo.</span></footer>
 </section>
 
 <!-- ======================= 19 · CONCLUSIONES ======================= -->
@@ -1063,30 +1060,57 @@ dialog#index button { cursor: pointer; border: 1px solid var(--line); background
                 <article class="card reveal" style="--i:2"><span class="n">3</span><div><h3>Hay resultados, con control</h3><p>IBM reporta 90 → 45 minutos y +45 % de productividad, y exige registros, interrupción y supervisión humana.</p></div></article>
                 <article class="card reveal" style="--i:3"><span class="n">4</span><div><h3>Evaluarlos exige tareas reales</h3><p>En Agent Arena los primeros puestos se traslapan y el costo por tarea va de USD 0,62 a 4,16.</p></div></article>
             </div>
-            <p class="closing reveal" style="--i:4">Gracias. ¿Preguntas?</p>
         </div>
     </div>
     <footer class="s-foot"><span class="src">Rodríguez Ángel, S. y Olaya Rojas, S. · Nuevas Tecnologías del Desarrollo · 2026-02</span></footer>
 </section>
 
-<!-- ======================= 20 · REFERENCIAS ======================= -->
-<section class="slide" id="s20" data-title="Referencias" aria-labelledby="t20">
-    <header class="s-head"><span class="kicker"><b>—</b>Referencias</span><span class="brand">Agentes inteligentes de IA</span></header>
+<!-- ======================= 20 · GRACIAS ======================= -->
+<section class="slide cover" id="s20" data-title="Gracias. ¿Preguntas?" aria-labelledby="t20">
+    <header class="s-head">
+        <span class="kicker"><b>—</b>Fin</span>
+        <span class="brand">Universidad Manuela Beltrán</span>
+    </header>
     <div class="slide-content">
-        <h2 id="t20">Referencias</h2>
-        <div class="body top">
-            <ul class="refs reveal" style="--i:0">
-                <li>Arena. (2026, 30 de septiembre). <i>Agent Arena: AI agent performance leaderboard</i> [Tabla de clasificación]. Recuperado el 30 de septiembre de 2026, de <a href="https://arena.ai/leaderboard/agent">https://arena.ai/leaderboard/agent</a></li>
-                <li>Gutowska, A. (s. f.). <i>What are AI agents?</i> IBM Think. <a href="https://www.ibm.com/think/topics/ai-agents">https://www.ibm.com/think/topics/ai-agents</a></li>
-                <li>IBM. (s. f.-a). <i>What is agentic architecture?</i> IBM Think. <a href="https://www.ibm.com/think/topics/agentic-architecture">https://www.ibm.com/think/topics/agentic-architecture</a></li>
-                <li>IBM. (s. f.-b). <i>Types of AI agents</i>. IBM Think. <a href="https://www.ibm.com/think/topics/ai-agent-types">https://www.ibm.com/think/topics/ai-agent-types</a></li>
-                <li>IBM. (s. f.-c). <i>AI agent use cases</i>. IBM Think. <a href="https://www.ibm.com/think/topics/ai-agent-use-cases">https://www.ibm.com/think/topics/ai-agent-use-cases</a></li>
-                <li>Russell, S., y Norvig, P. (2021). <i>Artificial intelligence: A modern approach</i> (4.ª ed.). Pearson.</li>
-            </ul>
-            <p class="note reveal" style="--i:1">Las páginas de IBM se consultaron en septiembre de 2026. Las cifras de Agent Arena corresponden al 30 de septiembre de 2026 y cambian a medida que llegan nuevas sesiones.</p>
+        <div class="left">
+            <div class="reveal" style="--i:0">
+                <h1 id="t20">Gracias.</h1>
+                <p class="ask">¿Preguntas?</p>
+            </div>
+            <div class="reveal" style="--i:1">
+                <p class="label">Integrantes</p>
+                <ul class="authors">
+                    <li>Rodríguez Ángel, Santiago</li>
+                    <li>Olaya Rojas, Santiago</li>
+                </ul>
+            </div>
+        </div>
+        <div class="right reveal" style="--i:2">
+            <!-- Mismo ciclo de la portada: cierra la presentación como la abrió -->
+            <svg viewBox="0 0 560 560" role="img" aria-label="Ciclo de un agente: percibe, razona, actúa y aprende">
+                <circle cx="280" cy="280" r="210" fill="none" stroke="#B4B0A4" stroke-width="1.5" stroke-dasharray="2 8"/>
+                <circle cx="280" cy="280" r="140" fill="none" stroke="#D9D6CD" stroke-width="1.5"/>
+                <g fill="none" stroke="#444A52" stroke-width="2" marker-end="url(#ah)">
+                    <path d="M327.2 75.4 A210 210 0 0 1 484.6 232.8"/>
+                    <path d="M484.6 327.2 A210 210 0 0 1 327.2 484.6"/>
+                    <path d="M232.8 484.6 A210 210 0 0 1 75.4 327.2"/>
+                    <path d="M75.4 232.8 A210 210 0 0 1 232.8 75.4"/>
+                </g>
+                <circle cx="280" cy="280" r="84" fill="#2B5C99"/>
+                <text x="280" y="277" text-anchor="middle" fill="#fff" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="25" font-weight="600">Agente</text>
+                <text x="280" y="304" text-anchor="middle" fill="#fff" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="19" opacity="0.9">de IA</text>
+                <g fill="#fff" stroke="#2B5C99" stroke-width="2">
+                    <circle cx="280" cy="70" r="42"/><circle cx="490" cy="280" r="42"/>
+                    <circle cx="280" cy="490" r="42"/><circle cx="70" cy="280" r="42"/>
+                </g>
+                <g font-family="IBM Plex Mono, Consolas, monospace" font-size="14" fill="#1B1D21" text-anchor="middle">
+                    <text x="280" y="75">percibe</text><text x="490" y="285">razona</text>
+                    <text x="280" y="495">actúa</text><text x="70" y="285">aprende</text>
+                </g>
+            </svg>
         </div>
     </div>
-    <footer class="s-foot"><span class="src">Formato de referencias: APA 7.ª edición.</span></footer>
+    <footer class="s-foot"><span class="src">Nuevas Tecnologías del Desarrollo · 2026-02</span></footer>
 </section>
 
 </main>
