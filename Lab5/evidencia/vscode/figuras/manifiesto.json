@@ -1,0 +1,94 @@
+{
+ "service_worker_cache_first": [
+  {
+   "archivo": "service_worker_cache_first_1.png",
+   "parte": 1,
+   "lineas": [
+    1,
+    31
+   ],
+   "alto_px": 1182,
+   "ancho_px": 1338,
+   "archivo_fuente": "service-worker.js"
+  },
+  {
+   "archivo": "service_worker_cache_first_2.png",
+   "parte": 2,
+   "lineas": [
+    32,
+    59
+   ],
+   "alto_px": 1018,
+   "ancho_px": 1338,
+   "archivo_fuente": "service-worker.js"
+  },
+  {
+   "archivo": "service_worker_cache_first_3.png",
+   "parte": 3,
+   "lineas": [
+    60,
+    86
+   ],
+   "alto_px": 987,
+   "ancho_px": 1338,
+   "archivo_fuente": "service-worker.js"
+  }
+ ],
+ "service_worker_network_first": [
+  {
+   "archivo": "service_worker_network_first_1.png",
+   "parte": 1,
+   "lineas": [
+    1,
+    33
+   ],
+   "alto_px": 1255,
+   "ancho_px": 1338,
+   "archivo_fuente": "service-worker-network-first.js"
+  },
+  {
+   "archivo": "service_worker_network_first_2.png",
+   "parte": 2,
+   "lineas": [
+    34,
+    64
+   ],
+   "alto_px": 1126,
+   "ancho_px": 1338,
+   "archivo_fuente": "service-worker-network-first.js"
+  },
+  {
+   "archivo": "service_worker_network_first_3.png",
+   "parte": 3,
+   "lineas": [
+    65,
+    96
+   ],
+   "alto_px": 1168,
+   "ancho_px": 1338,
+   "archivo_fuente": "service-worker-network-first.js"
+  }
+ ],
+ "registro_en_app": [
+  {
+   "archivo": "registro_en_app_1.png",
+   "parte": 1,
+   "lineas": [
+    1,
+    15
+   ],
+   "alto_px": 564,
+   "ancho_px": 1338,
+   "archivo_fuente": "app.js"
+  }
+ ],
+ "estructura_proyecto": [
+  {
+   "archivo": "estructura_proyecto.png",
+   "parte": 1,
+   "lineas": null,
+   "alto_px": 1452,
+   "ancho_px": 1909
+  }
+ ]
+}

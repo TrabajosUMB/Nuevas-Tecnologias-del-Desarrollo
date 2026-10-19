@@ -1,0 +1,299 @@
+{
+ "generado": "2026-10-19T16:32:53.865Z",
+ "evidencias": [
+  {
+   "archivo": "02_devtools_consola.png",
+   "descripcion": "Console: mensajes del Service Worker y de la app"
+  },
+  {
+   "archivo": "03_devtools_cache_storage.png",
+   "descripcion": "Application > Cache storage: mi-pwa-v1 con los archivos"
+  },
+  {
+   "archivo": "01_devtools_service_worker.png",
+   "descripcion": "Application > Service workers: el Service Worker activo y la pestaña controlada"
+  },
+  {
+   "archivo": "04_devtools_offline_activado.png",
+   "descripcion": "Application > Service workers con la casilla Offline marcada"
+  },
+  {
+   "archivo": "05_app_sin_conexion.png",
+   "descripcion": "La app recargada sin conexión: carga completa desde el Service Worker"
+  },
+  {
+   "archivo": "06_devtools_network_sin_conexion.png",
+   "descripcion": "Network: las solicitudes se responden desde el Service Worker con Offline marcado"
+  },
+  {
+   "archivo": "07_app_sin_conexion_con_entrega.png",
+   "descripcion": "La app sin conexión después de agregar una entrega"
+  },
+  {
+   "archivo": "08_devtools_version_en_espera.png",
+   "descripcion": "Application > Service workers: la versión nueva instalada y en espera de activarse"
+  },
+  {
+   "archivo": "09_devtools_cache_actualizado.png",
+   "descripcion": "Cache storage tras subir la versión: solo queda mi-pwa-v2"
+  },
+  {
+   "archivo": "10_cache_first_con_servidor_actualizado.png",
+   "descripcion": "cacheFirst: la página tras cambiar el contenido en el servidor a v2"
+  },
+  {
+   "archivo": "10_cache_first_sin_servidor.png",
+   "descripcion": "cacheFirst: la página con el servidor detenido"
+  },
+  {
+   "archivo": "11_network_first_con_servidor_actualizado.png",
+   "descripcion": "networkFirst: la página tras cambiar el contenido en el servidor a v2"
+  },
+  {
+   "archivo": "11_network_first_sin_servidor.png",
+   "descripcion": "networkFirst: la página con el servidor detenido"
+  }
+ ],
+ "entorno": {
+  "navegador": "Chrome/155.0.8059.84",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+  "servidor": "Python http.server en http://localhost:8095 con Cache-Control: no-store",
+  "sistema": "win32",
+  "node": "v24.14.0"
+ },
+ "parteA": {
+  "swActivado": true,
+  "primeraCarga": {
+   "titulo": "Agenda de entregas UMB",
+   "version": "v1",
+   "estadoRed": "En línea",
+   "enLinea": true,
+   "controlada": false,
+   "sw": {
+    "alcance": "http://localhost:8095/",
+    "activo": "activated",
+    "archivo": "/service-worker.js"
+   },
+   "entregas": 2
+  },
+  "caches": {
+   "mi-pwa-v1": [
+    "/",
+    "/app.js",
+    "/icons/icon-192.png",
+    "/icons/icon-512.png",
+    "/index.html",
+    "/manifest.json",
+    "/styles.css"
+   ]
+  },
+  "consolaDevtools": [
+   "[SW] Instalando...",
+   "[App] Service Worker registrado: http://localhost:8095/",
+   "[SW] Guardando archivos en cache",
+   "[SW] Activando..."
+  ],
+  "recargaControlada": {
+   "titulo": "Agenda de entregas UMB",
+   "version": "v1",
+   "estadoRed": "En línea",
+   "enLinea": true,
+   "controlada": true,
+   "sw": {
+    "alcance": "http://localhost:8095/",
+    "activo": "activated",
+    "archivo": "/service-worker.js"
+   },
+   "entregas": 2
+  },
+  "sinConexion": {
+   "titulo": "Agenda de entregas UMB",
+   "version": "v1",
+   "estadoRed": "Sin conexión: la app sigue funcionando",
+   "enLinea": false,
+   "controlada": true,
+   "sw": {
+    "alcance": "http://localhost:8095/",
+    "activo": "activated",
+    "archivo": "/service-worker.js"
+   },
+   "entregas": 2,
+   "registroDeRed": [
+    {
+     "ruta": "/styles.css",
+     "desdeSw": true
+    },
+    {
+     "ruta": "/app.js",
+     "desdeSw": true
+    },
+    {
+     "ruta": "/manifest.json",
+     "desdeSw": true
+    },
+    {
+     "ruta": "/icons/icon-192.png",
+     "desdeSw": true
+    },
+    {
+     "ruta": "/icons/icon-192.png",
+     "desdeSw": true
+    }
+   ],
+   "entregasTrasAgregar": 3
+  },
+  "conConexionDeNuevo": {
+   "titulo": "Agenda de entregas UMB",
+   "version": "v1",
+   "estadoRed": "En línea",
+   "enLinea": true,
+   "controlada": true,
+   "sw": {
+    "alcance": "http://localhost:8095/",
+    "activo": "activated",
+    "archivo": "/service-worker.js"
+   },
+   "entregas": 3
+  },
+  "nuevaVersionEnEspera": true,
+  "cachesConVersionEnEspera": [
+   "mi-pwa-v1",
+   "mi-pwa-v2"
+  ],
+  "versionNuevaActivada": true,
+  "cachesTrasActualizar": {
+   "mi-pwa-v2": [
+    "/",
+    "/app.js",
+    "/icons/icon-192.png",
+    "/icons/icon-512.png",
+    "/index.html",
+    "/manifest.json",
+    "/styles.css"
+   ]
+  },
+  "versionTrasActualizar": "v2"
+ },
+ "parteB": {
+  "cacheFirst": {
+   "estrategia": "cacheFirst",
+   "archivoSw": "service-worker.js",
+   "inicial": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v1",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2
+   },
+   "versionEnCacheInicial": "v1",
+   "versionEnServidor": "v2",
+   "trasCambio": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v1",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2
+   },
+   "versionEnCacheTrasCambio": "v1",
+   "segundaRecarga": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v1",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2
+   },
+   "sinServidor": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v1",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2,
+    "cargo": true
+   }
+  },
+  "networkFirst": {
+   "estrategia": "networkFirst",
+   "archivoSw": "service-worker-network-first.js",
+   "inicial": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v1",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2
+   },
+   "versionEnCacheInicial": "v1",
+   "versionEnServidor": "v2",
+   "trasCambio": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v2",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2
+   },
+   "versionEnCacheTrasCambio": "v2",
+   "segundaRecarga": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v2",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2
+   },
+   "sinServidor": {
+    "titulo": "Agenda de entregas UMB",
+    "version": "v2",
+    "estadoRed": "En línea",
+    "enLinea": true,
+    "controlada": true,
+    "sw": {
+     "alcance": "http://localhost:8095/",
+     "activo": "activated",
+     "archivo": "/service-worker.js"
+    },
+    "entregas": 2,
+    "cargo": true
+   }
+  }
+ }
+}

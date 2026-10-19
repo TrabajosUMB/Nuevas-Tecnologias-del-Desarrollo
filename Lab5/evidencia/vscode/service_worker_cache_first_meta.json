@@ -1,0 +1,438 @@
+{
+ "archivo": "service-worker.js",
+ "desde": null,
+ "anchoRecorte": 700,
+ "escala": 1.5,
+ "lineas": [
+  {
+   "top": 28.98621940612793,
+   "alto": 18.996063232421875,
+   "texto": "/*"
+  },
+  {
+   "top": 47.982282638549805,
+   "alto": 18.996063232421875,
+   "texto": " * SERVICE WORKER — VERSIÓN 1: CACHE-FIRST («primero el caché»)"
+  },
+  {
+   "top": 66.97834587097168,
+   "alto": 18.996063232421875,
+   "texto": " * ---------------------------------------------------------------------------"
+  },
+  {
+   "top": 85.97440910339355,
+   "alto": 18.996063232421875,
+   "texto": " * Estrategia: ante cada petición, el Service Worker busca primero en el caché."
+  },
+  {
+   "top": 104.98277854919434,
+   "alto": 18.996063232421875,
+   "texto": " * Si encuentra una copia, responde con ella y no toca la red; solo si no la"
+  },
+  {
+   "top": 123.97884178161621,
+   "alto": 18.996063232421875,
+   "texto": " * hay, va a la red."
+  },
+  {
+   "top": 142.9749050140381,
+   "alto": 18.996063232421875,
+   "texto": " *"
+  },
+  {
+   "top": 161.98326683044434,
+   "alto": 18.996063232421875,
+   "texto": " * Ventajas:  responde de inmediato (no espera a la red) y funciona sin conexión."
+  },
+  {
+   "top": 180.9793300628662,
+   "alto": 18.996063232421875,
+   "texto": " * Desventaja: puede mostrar contenido desactualizado, porque nunca revisa si el"
+  },
+  {
+   "top": 199.9753932952881,
+   "alto": 18.996063232421875,
+   "texto": " *             servidor tiene una versión más nueva mientras el caché no cambie"
+  },
+  {
+   "top": 218.98375511169434,
+   "alto": 18.996063232421875,
+   "texto": " *             de nombre (CACHE_NAME)."
+  },
+  {
+   "top": 237.9798183441162,
+   "alto": 18.996063232421875,
+   "texto": " *"
+  },
+  {
+   "top": 256.9758815765381,
+   "alto": 18.996063232421875,
+   "texto": " * La otra versión, con estrategia Network-First, está en"
+  },
+  {
+   "top": 275.98424339294434,
+   "alto": 18.996063232421875,
+   "texto": " * service-worker-network-first.js. Las dos son idénticas salvo por el evento"
+  },
+  {
+   "top": 294.9803066253662,
+   "alto": 18.996063232421875,
+   "texto": " * FETCH (ver la comparación al final de este archivo)."
+  },
+  {
+   "top": 313.9763698577881,
+   "alto": 18.996063232421875,
+   "texto": " */"
+  },
+  {
+   "top": 332.98473167419434,
+   "alto": 18.996063232421875,
+   "texto": ""
+  },
+  {
+   "top": 351.9807949066162,
+   "alto": 18.996063232421875,
+   "texto": "// Nombre del cache — cambia la version cuando actualices la app"
+  },
+  {
+   "top": 370.9768581390381,
+   "alto": 18.996063232421875,
+   "texto": "const CACHE_NAME = 'mi-pwa-v1';"
+  },
+  {
+   "top": 389.98521995544434,
+   "alto": 18.996063232421875,
+   "texto": ""
+  },
+  {
+   "top": 408.9812831878662,
+   "alto": 18.996063232421875,
+   "texto": "// Archivos que se guardan en cache al instalar"
+  },
+  {
+   "top": 427.9773464202881,
+   "alto": 18.996063232421875,
+   "texto": "const ARCHIVOS_CACHE = ["
+  },
+  {
+   "top": 446.98570823669434,
+   "alto": 18.996063232421875,
+   "texto": "  '/',"
+  },
+  {
+   "top": 465.9817714691162,
+   "alto": 18.996063232421875,
+   "texto": "  '/index.html',"
+  },
+  {
+   "top": 484.9778347015381,
+   "alto": 18.996063232421875,
+   "texto": "  '/styles.css',"
+  },
+  {
+   "top": 503.98619651794434,
+   "alto": 18.996063232421875,
+   "texto": "  '/app.js',"
+  },
+  {
+   "top": 522.9822902679443,
+   "alto": 18.996063232421875,
+   "texto": "  '/manifest.json',"
+  },
+  {
+   "top": 541.9783229827881,
+   "alto": 18.996063232421875,
+   "texto": "  '/icons/icon-192.png',"
+  },
+  {
+   "top": 560.9744167327881,
+   "alto": 18.996063232421875,
+   "texto": "  '/icons/icon-512.png',"
+  },
+  {
+   "top": 579.9827785491943,
+   "alto": 18.996063232421875,
+   "texto": "];"
+  },
+  {
+   "top": 598.9788112640381,
+   "alto": 18.996063232421875,
+   "texto": ""
+  },
+  {
+   "top": 617.9749050140381,
+   "alto": 18.996063232421875,
+   "texto": "// EVENTO INSTALL: guarda archivos en cache (pre-caching)."
+  },
+  {
+   "top": 636.9832668304443,
+   "alto": 18.996063232421875,
+   "texto": "// waitUntil() obliga al navegador a esperar a que termine la promesa antes de"
+  },
+  {
+   "top": 655.9792995452881,
+   "alto": 18.996063232421875,
+   "texto": "// dar la instalación por terminada. addAll() es atómico: si un solo archivo"
+  },
+  {
+   "top": 674.9753932952881,
+   "alto": 18.996063232421875,
+   "texto": "// falla (por ejemplo, un 404), no se guarda ninguno y la instalación falla."
+  },
+  {
+   "top": 693.9837551116943,
+   "alto": 18.996063232421875,
+   "texto": "self.addEventListener('install', (event) => {"
+  },
+  {
+   "top": 712.9797878265381,
+   "alto": 18.996063232421875,
+   "texto": "  console.log('[SW] Instalando...');"
+  },
+  {
+   "top": 731.9758815765381,
+   "alto": 18.996063232421875,
+   "texto": "  event.waitUntil("
+  },
+  {
+   "top": 750.9842433929443,
+   "alto": 18.996063232421875,
+   "texto": "    caches.open(CACHE_NAME).then((cache) => {"
+  },
+  {
+   "top": 769.9802761077881,
+   "alto": 18.996063232421875,
+   "texto": "      console.log('[SW] Guardando archivos en cache');"
+  },
+  {
+   "top": 788.9763698577881,
+   "alto": 18.996063232421875,
+   "texto": "      return cache.addAll(ARCHIVOS_CACHE);"
+  },
+  {
+   "top": 807.9847316741943,
+   "alto": 18.996063232421875,
+   "texto": "    })"
+  },
+  {
+   "top": 826.9807643890381,
+   "alto": 18.996063232421875,
+   "texto": "  );"
+  },
+  {
+   "top": 845.9768581390381,
+   "alto": 18.996063232421875,
+   "texto": "});"
+  },
+  {
+   "top": 864.9852199554443,
+   "alto": 18.996063232421875,
+   "texto": ""
+  },
+  {
+   "top": 883.9812526702881,
+   "alto": 18.996063232421875,
+   "texto": "// EVENTO ACTIVATE: limpia caches viejos."
+  },
+  {
+   "top": 902.9773464202881,
+   "alto": 18.996063232421875,
+   "texto": "// Borra todos los cachés cuyo nombre no sea el actual; así, al subir de"
+  },
+  {
+   "top": 921.9857082366943,
+   "alto": 18.996063232421875,
+   "texto": "// 'mi-pwa-v1' a 'mi-pwa-v2', el caché anterior no queda ocupando espacio."
+  },
+  {
+   "top": 940.9817409515381,
+   "alto": 18.996063232421875,
+   "texto": "self.addEventListener('activate', (event) => {"
+  },
+  {
+   "top": 959.9778347015381,
+   "alto": 18.996063232421875,
+   "texto": "  console.log('[SW] Activando...');"
+  },
+  {
+   "top": 978.9861965179443,
+   "alto": 18.996063232421875,
+   "texto": "  event.waitUntil("
+  },
+  {
+   "top": 997.9822902679443,
+   "alto": 18.996063232421875,
+   "texto": "    caches.keys().then((nombres) => {"
+  },
+  {
+   "top": 1016.9782619476318,
+   "alto": 18.996063232421875,
+   "texto": "      return Promise.all("
+  },
+  {
+   "top": 1035.9743556976318,
+   "alto": 18.996063232421875,
+   "texto": "        nombres.filter(n => n !== CACHE_NAME).map(n => caches.delete(n))"
+  },
+  {
+   "top": 1054.9827785491943,
+   "alto": 18.996063232421875,
+   "texto": "      );"
+  },
+  {
+   "top": 1073.9788722991943,
+   "alto": 18.996063232421875,
+   "texto": "    })"
+  },
+  {
+   "top": 1092.9748439788818,
+   "alto": 18.996063232421875,
+   "texto": "  );"
+  },
+  {
+   "top": 1111.9832668304443,
+   "alto": 18.996063232421875,
+   "texto": "});"
+  },
+  {
+   "top": 1130.9793605804443,
+   "alto": 18.996063232421875,
+   "texto": ""
+  },
+  {
+   "top": 1149.9753322601318,
+   "alto": 18.996063232421875,
+   "texto": "// EVENTO FETCH: Cache-First (primero cache, si no hay, va a la red)."
+  },
+  {
+   "top": 1168.9837551116943,
+   "alto": 18.996063232421875,
+   "texto": "// respondWith() decide qué respuesta recibe la página. caches.match() busca la"
+  },
+  {
+   "top": 1187.9798488616943,
+   "alto": 18.996063232421875,
+   "texto": "// petición en todos los cachés; devuelve undefined si no hay copia."
+  },
+  {
+   "top": 1206.9758205413818,
+   "alto": 18.996063232421875,
+   "texto": "self.addEventListener('fetch', (event) => {"
+  },
+  {
+   "top": 1225.9842433929443,
+   "alto": 18.996063232421875,
+   "texto": "  event.respondWith("
+  },
+  {
+   "top": 1244.9803371429443,
+   "alto": 18.996063232421875,
+   "texto": "    caches.match(event.request).then((respuestaCache) => {"
+  },
+  {
+   "top": 1263.9763088226318,
+   "alto": 18.996063232421875,
+   "texto": "      if (respuestaCache) {"
+  },
+  {
+   "top": 1282.9847316741943,
+   "alto": 18.996063232421875,
+   "texto": "        return respuestaCache; // responde desde cache"
+  },
+  {
+   "top": 1301.9808254241943,
+   "alto": 18.996063232421875,
+   "texto": "      }"
+  },
+  {
+   "top": 1320.9767971038818,
+   "alto": 18.996063232421875,
+   "texto": "      return fetch(event.request); // va a la red"
+  },
+  {
+   "top": 1339.9852199554443,
+   "alto": 18.996063232421875,
+   "texto": "    })"
+  },
+  {
+   "top": 1358.9813137054443,
+   "alto": 18.996063232421875,
+   "texto": "  );"
+  },
+  {
+   "top": 1377.9772853851318,
+   "alto": 18.996063232421875,
+   "texto": "});"
+  },
+  {
+   "top": 1396.9857082366943,
+   "alto": 18.996063232421875,
+   "texto": ""
+  },
+  {
+   "top": 1415.9818019866943,
+   "alto": 18.996063232421875,
+   "texto": "/*"
+  },
+  {
+   "top": 1434.9777736663818,
+   "alto": 18.996063232421875,
+   "texto": " * COMPARACIÓN CON NETWORK-FIRST (service-worker-network-first.js)"
+  },
+  {
+   "top": 1453.9861965179443,
+   "alto": 18.996063232421875,
+   "texto": " * ---------------------------------------------------------------------------"
+  },
+  {
+   "top": 1472.9822902679443,
+   "alto": 18.996063232421875,
+   "texto": " *                        Cache-First (este archivo)   Network-First"
+  },
+  {
+   "top": 1491.9782619476318,
+   "alto": 18.996063232421875,
+   "texto": " * Primer intento         caché                        red"
+  },
+  {
+   "top": 1510.9743556976318,
+   "alto": 18.996063232421875,
+   "texto": " * Si el primero falla    red                          caché"
+  },
+  {
+   "top": 1529.9827785491943,
+   "alto": 18.996063232421875,
+   "texto": " * Contenido              puede estar desactualizado   siempre el más reciente"
+  },
+  {
+   "top": 1548.9787502288818,
+   "alto": 18.996063232421875,
+   "texto": " * Velocidad              inmediata                    depende de la red"
+  },
+  {
+   "top": 1567.9748439788818,
+   "alto": 18.996063232421875,
+   "texto": " * Sin conexión           funciona                     funciona con lo ya guardado"
+  },
+  {
+   "top": 1586.9832668304443,
+   "alto": 18.996063232421875,
+   "texto": " * Actualiza el caché     solo al instalar             en cada respuesta de la red"
+  },
+  {
+   "top": 1605.9792385101318,
+   "alto": 18.996063232421875,
+   "texto": " * Conviene para          recursos que casi no cambian contenido que cambia a menudo"
+  },
+  {
+   "top": 1624.9753322601318,
+   "alto": 18.996063232421875,
+   "texto": " */"
+  },
+  {
+   "top": 1643.9837551116943,
+   "alto": 18.996063232421875,
+   "texto": ""
+  }
+ ]
+}

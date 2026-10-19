@@ -1,0 +1,83 @@
+{
+ "archivo": "app.js",
+ "desde": "// Registrar el Service Worker",
+ "anchoRecorte": 700,
+ "escala": 1.5,
+ "lineas": [
+  {
+   "top": 6,
+   "alto": 18.996063232421875,
+   "texto": "// Registrar el Service Worker"
+  },
+  {
+   "top": 25.0084228515625,
+   "alto": 18.996063232421875,
+   "texto": "if ('serviceWorker' in navigator) {"
+  },
+  {
+   "top": 44.0045166015625,
+   "alto": 18.996063232421875,
+   "texto": "    window.addEventListener('load', () => {"
+  },
+  {
+   "top": 63.00048828125,
+   "alto": 18.996063232421875,
+   "texto": "        navigator.serviceWorker.register('/service-worker.js')"
+  },
+  {
+   "top": 82.0089111328125,
+   "alto": 18.996063232421875,
+   "texto": "            .then((registro) => {"
+  },
+  {
+   "top": 101.0050048828125,
+   "alto": 18.996063232421875,
+   "texto": "                console.log('[App] Service Worker registrado:', registro.scope);"
+  },
+  {
+   "top": 120.0009765625,
+   "alto": 18.996063232421875,
+   "texto": "            })"
+  },
+  {
+   "top": 138.9970703125,
+   "alto": 18.996063232421875,
+   "texto": "            .catch((error) => {"
+  },
+  {
+   "top": 158.0054931640625,
+   "alto": 18.996063232421875,
+   "texto": "                console.error('[App] Error al registrar SW:', error);"
+  },
+  {
+   "top": 177.00146484375,
+   "alto": 18.996063232421875,
+   "texto": "            });"
+  },
+  {
+   "top": 195.99755859375,
+   "alto": 18.996063232421875,
+   "texto": "    });"
+  },
+  {
+   "top": 215.005859375,
+   "alto": 18.996063232421875,
+   "texto": "} else {"
+  },
+  {
+   "top": 234.001953125,
+   "alto": 18.996063232421875,
+   "texto": "    console.log('[App] Service Workers no soportados en este navegador');"
+  },
+  {
+   "top": 252.998046875,
+   "alto": 18.996063232421875,
+   "texto": "}"
+  },
+  {
+   "top": 272.00634765625,
+   "alto": 18.996063232421875,
+   "texto": ""
+  }
+ ]
+}
