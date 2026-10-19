@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1f497d"> <!-- ds-allow-hardcode: el meta theme-color no admite variables CSS; es el mismo azul de --azul -->
+    <title>Agenda de entregas UMB</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Agenda de entregas UMB</h1>
+        <p id="version-contenido">Versión del contenido: <strong>v1</strong></p>
+        <p id="estado-red" role="status" class="estado">Comprobando la conexión...</p>
+    </header>
+    <main>
+        <form id="formulario">
+            <label for="entrega">Nueva entrega</label>
+            <div class="fila">
+                <input id="entrega" type="text" placeholder="Ejemplo: Lab 6 de Nuevas Tecnologías" autocomplete="off" required>
+                <button type="submit">Agregar</button>
+            </div>
+        </form>
+        <ul id="lista" aria-label="Lista de entregas"></ul>
+        <p id="resumen" class="resumen"></p>
+    </main>
+    <script src="/app.js"></script>
+</body>
+</html>
